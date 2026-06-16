@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.0",
+  "extensions": {
+    "git": {
+      "version": "1.0.2",
+      "source": "local",
+      "manifest_hash": "sha256:21f48793eb97fa752accf2681a8f342ae3708579be4a43efd3ec55e4d6381b42",
+      "enabled": true,
+      "priority": 10,
+      "registered_commands": {
+        "opencode": [
+          "git.feature",
+          "git.validate",
+          "git.remote",
+          "git.initialize",
+          "git.commit"
+        ]
+      },
+      "registered_skills": [],
+      "installed_at": "2026-06-07T16:22:53.023604+00:00"
+    },
+    "levelup": {
+      "version": "1.1.9",
+      "source": "local",
+      "manifest_hash": "sha256:a41a0ccb92b5a783fd0c048a24f51907507b5a0adf7d5d788801f41804806515",
+      "enabled": true,
+      "priority": 10,
+      "registered_commands": {
+        "opencode": [
+          "levelup.init",
+          "levelup.clarify",
+          "levelup.specify",
+          "levelup.skills",
+          "levelup.implement",
+          "levelup.trace",
+          "levelup.validate"
+        ]
+      },
+      "registered_skills": [],
+      "installed_at": "2026-06-07T16:22:53.171720+00:00"
+    },
+    "quick": {
+      "version": "1.0.4",
+      "source": "local",
+      "manifest_hash": "sha256:1e1e4d5065a228cd50c1fa1756de606aabde07308b023fa27c98a6200c428ad6",
+      "enabled": true,
+      "priority": 10,
+      "registered_commands": {
+        "opencode": [
+          "quick.implement"
+        ]
+      },
+      "registered_skills": [],
+      "installed_at": "2026-06-07T16:22:53.189282+00:00"
+    }
+  }
+}

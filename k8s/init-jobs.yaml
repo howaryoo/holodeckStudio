@@ -1,0 +1,55 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: holodeck-init-db
+  labels:
+    app: holodeck
+    component: init
+spec:
+  template:
+    spec:
+      containers:
+        - name: init-db
+          image: pgvector/pgvector:pg16
+          command:
+            - psql
+            - "-U"
+            - "holodeck"
+            - "-h"
+            - "postgres"
+            - "-d"
+            - "holodeck"
+            - "-c"
+            - "CREATE EXTENSION IF NOT EXISTS vector;"
+          env:
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: holodeck-secrets
+                  key: postgres-password
+      restartPolicy: OnFailure
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: holodeck-init-bucket
+  labels:
+    app: holodeck
+    component: init
+spec:
+  template:
+    spec:
+      containers:
+        - name: mc
+          image: minio/mc
+          command:
+            - /bin/sh
+            - -c
+            - |
+              mc alias set local http://minio:9000 minioadmin minioadmin
+              mc mb --ignore-existing local/holodeck-assets
+          env:
+            - name: MC_HOST_local
+              value: "http://minioadmin:minioadmin@minio:9000"
+      restartPolicy: OnFailure

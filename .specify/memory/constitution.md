@@ -1,50 +1,87 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report:
+- Version change: (new) → 1.0.0
+- Added principles:
+  - I. Python-First Development
+  - II. Zen of Python Philosophy
+  - III. Single Responsibility
+  - IV. Open/Closed & Liskov Substitution
+  - V. Dependency Inversion & Interface Segregation
+- Added sections: Technology Standards, Development Workflow, Governance
+- Removed sections: (none — initial ratification)
+- Templates requiring updates:
+  - .specify/templates/plan-template.md ✅ (no changes needed — Constitution Check already references constitution file)
+  - .specify/templates/spec-template.md ✅ (no changes needed — requirements align with SOLID principles)
+  - .specify/templates/tasks-template.md ✅ (no changes needed — task structure compatible)
+  - .specify/templates/commands/*.md ⚠ (no command files found in templates/commands/)
+- Follow-up TODOs: (none)
+-->
+
+# HolodeckStudio Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Python-First Development
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+Python is the primary implementation language for all project code. All
+code MUST use Python idioms, type hints, and follow PEP 8 style
+guidelines. No other language may be introduced without explicit
+justification and approval documented in a spec or plan.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### II. Zen of Python Philosophy
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+Code MUST follow the design philosophy of the Zen of Python: explicit
+is better than implicit, simple is better than complex, readability
+counts, errors MUST never pass silently unless explicitly silenced,
+and there SHOULD be one — and preferably only one — obvious way to
+do it. Practicality beats purity, but practicality MUST be justified,
+not assumed.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### III. Single Responsibility
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+Each module, class, and function MUST have exactly one reason to
+change. No god objects or catch-all modules are permitted. If a class
+has more than one responsibility, it MUST be split into focused
+components.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### IV. Open/Closed & Liskov Substitution
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+Software entities MUST be open for extension but closed for
+modification. New behavior MUST be added through new code, not by
+modifying existing working code. Subtypes MUST be fully substitutable
+for their base types; violations of the substitution principle
+indicate a design flaw that MUST be corrected.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+### V. Dependency Inversion & Interface Segregation
+
+High-level modules MUST NOT depend on low-level modules; both MUST
+depend on abstractions. Abstractions MUST NOT depend on details;
+details MUST depend on abstractions. Clients MUST NOT be forced to
+depend on interfaces they do not use. Prefer Python protocol classes
+and composition over inheritance.
+
+## Technology Standards
+
+Python 3.11+ as primary language. Type hints REQUIRED on all function
+signatures. PEP 8 compliance enforced via automated linting (ruff,
+mypy). Dependencies managed through pyproject.toml. No vendored code
+without explicit approval. Virtual environments REQUIRED for local
+development.
+
+## Development Workflow
+
+Test-First Development: tests MUST be written before implementation.
+Red-Green-Refactor cycle enforced. Code review REQUIRED for all merge
+requests; reviewers MUST verify constitution compliance. Complexity
+MUST be justified; simpler alternatives MUST be documented when
+rejected.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This constitution supersedes all other practices and conventions.
+Amendments require documentation, team approval, and a migration plan.
+All merge requests and code reviews MUST verify compliance with these
+principles. Any deviation MUST be explicitly justified with a
+documented rationale in the relevant spec or plan document.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2026-06-07 | **Last Amended**: 2026-06-07
