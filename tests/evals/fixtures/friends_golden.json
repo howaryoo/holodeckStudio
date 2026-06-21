@@ -1,0 +1,240 @@
+{
+  "version": "1.0",
+  "show": "Friends",
+  "entries": [
+    {
+      "prompt_id": "rival-chef-s01",
+      "user_prompt": "Monica discovers a rival chef is opening a restaurant next door and becomes obsessed with outdoing them, while Chandler tries to stay out of it but gets accidentally involved.",
+      "quality_guidelines": {
+        "narrative_goal": "Monica's competitive obsession escalates to absurdity before she finds perspective through Chandler's accidental involvement; resolves with warmth and self-awareness",
+        "character_arcs": {
+          "Monica": "Starts hyper-competitive, escalates to chaos, lands with self-awareness and warmth",
+          "Chandler": "Tries to avoid conflict, gets dragged in despite himself, defuses the situation with humor and genuine support"
+        },
+        "comedy_approach": "Escalating situational comedy driven by Monica's competitiveness; Chandler's sarcastic deflection as a counterpoint; at least one scene where Monica's obsession reaches absurd extremes",
+        "emotional_beats": [
+          "Monica's excitement at the competition (Act 1 hook)",
+          "Chandler's exasperated-but-loving attempt to stay neutral (Act 1)",
+          "Monica's plan backfires or escalates beyond control (Act 2 midpoint)",
+          "Chandler's accidental involvement creates comedic chaos (Act 2 break)",
+          "Monica's brief moment of doubt — is she going too far? (Act 3 open)",
+          "Resolution: warmth between Monica and Chandler; Monica finds perspective (Act 3 close)"
+        ],
+        "production_constraints": [
+          "Maximum 2 primary sets: Monica's restaurant kitchen or apartment kitchen and Central Perk",
+          "No more than 2 guest characters with speaking roles",
+          "No location shoots outside standard Friends sets"
+        ],
+        "thematic_focus": "Competitiveness vs self-acceptance; love as a grounding force when ambition spirals"
+      },
+      "scope_boundaries": {
+        "must_include": [
+          "Monica in a cooking or kitchen context",
+          "At least one Chandler sarcastic quip about the situation",
+          "A callback to Monica's competitive history (e.g. the trivia game, her weight, her drive to be the best)"
+        ],
+        "must_exclude": [
+          "Ross dinosaur or paleontology subplot as a primary thread",
+          "Phoebe supernatural subplot as a primary thread",
+          "Joey food subplot as primary (may appear briefly)"
+        ],
+        "character_focus": ["Monica", "Chandler"]
+      },
+      "acceptable_variations": [
+        "The rival chef can be male or female and may or may not appear on screen",
+        "Central Perk scenes may be replaced by Monica and Chandler's apartment scenes",
+        "Joey can appear as a supporting character providing incidental comic relief",
+        "The B-plot may involve any of the remaining friends (Rachel, Ross, Phoebe, Joey) independently"
+      ]
+    },
+    {
+      "prompt_id": "audition-callback-s01",
+      "user_prompt": "Joey gets a callback for a major film role and becomes convinced he'll get it, leading to an elaborate and increasingly delusional preparation routine, while Chandler and Ross try to manage his expectations.",
+      "quality_guidelines": {
+        "narrative_goal": "Joey's optimism and dedication to acting are portrayed with warmth and humor; Chandler and Ross's attempts to manage expectations create comedic tension; resolution affirms Joey's resilience regardless of outcome",
+        "character_arcs": {
+          "Joey": "Starts excited and confident, escalates to superstitious ritual preparation, lands with genuine emotional resilience whether he gets the role or not",
+          "Chandler": "Tries to be supportive while managing his own secondhand anxiety; delivers at least one sincere moment beneath the jokes",
+          "Ross": "Genuinely wants to help but over-complicates the advice with academic overthinking"
+        },
+        "comedy_approach": "Character-driven comedy: Joey's acting rituals taken completely seriously by him; Ross's overcomplicated coaching; Chandler's deadpan commentary on the absurdity of the situation",
+        "emotional_beats": [
+          "Joey announces the callback with infectious excitement (Act 1)",
+          "Joey's preparation rituals escalate to absurdity (Act 2)",
+          "Ross attempts to coach Joey with disastrous results (Act 2 midpoint)",
+          "Chandler's sincere encouragement (disguised as a joke) (Act 2 break)",
+          "Audition outcome — good or bad — met with Joey's characteristic resilience (Act 3)",
+          "Warm group moment affirming friendship (Act 3 close)"
+        ],
+        "production_constraints": [
+          "Maximum 2 sets: Joey and Chandler's apartment and Central Perk",
+          "No more than 1 guest character (the casting agent, if shown at all)",
+          "Audition scene optional — can be implied off-screen"
+        ],
+        "thematic_focus": "Resilience and friendship; the value of believing in yourself even when the odds are long"
+      },
+      "scope_boundaries": {
+        "must_include": [
+          "Reference to Dr. Drake Ramoray or Joey's acting history",
+          "Joey's 'smell the fart' acting technique mentioned or demonstrated",
+          "Joey treating his acting preparation with complete seriousness"
+        ],
+        "must_exclude": [
+          "Joey sharing his food voluntarily (non-negotiable character canon)",
+          "Joey using academic or complex vocabulary",
+          "Cynical ending where friends mock Joey's failure"
+        ],
+        "character_focus": ["Joey", "Chandler", "Ross"]
+      },
+      "acceptable_variations": [
+        "The role can be for film, TV, or theater",
+        "The outcome (callback success or rejection) can go either way",
+        "Rachel or Monica may appear briefly in supporting capacity",
+        "Chandler's sincere moment can be delivered as a joke that Joey takes literally"
+      ]
+    },
+    {
+      "prompt_id": "dinosaur-date-s01",
+      "user_prompt": "Ross goes on a first date with a woman he really likes but cannot stop talking about dinosaurs and fossils every time he gets nervous, while Rachel and Monica coach him beforehand with increasingly specific (and unhelpful) advice.",
+      "quality_guidelines": {
+        "narrative_goal": "Ross's romantic earnestness and social obliviousness collide hilariously on the date; Rachel and Monica's pre-date coaching backfires; the date ends on a warm, unexpected note that reaffirms Ross's likability despite his awkwardness",
+        "character_arcs": {
+          "Ross": "Anxious and determined to make a good impression; succumbs to paleontology tangents under pressure; charmingly oblivious to his own sabotage",
+          "Rachel": "Enthusiastic coach who gives confident but shallow fashion and small-talk advice",
+          "Monica": "Competitive about giving the best advice; turns coaching into a personal mission"
+        },
+        "comedy_approach": "Running gag: Ross inserting paleontology into completely unrelated conversation topics; escalating impracticality of Rachel and Monica's coaching advice; the date's reactions played for comedic contrast",
+        "emotional_beats": [
+          "Ross announces the date with nervous excitement (Act 1)",
+          "Rachel and Monica's coaching session devolves into chaos (Act 1 B-plot)",
+          "First date awkwardness — Ross deploys all the wrong advice at once (Act 2)",
+          "The paleontology tangent reaches peak absurdity (Act 2 midpoint)",
+          "Unexpected warmth — the date responds positively to something genuine about Ross (Act 3)",
+          "Ross reports back to the group; warm comedic payoff (Act 3 close)"
+        ],
+        "production_constraints": [
+          "Maximum 3 sets: Central Perk (coaching scene), restaurant or date location (1 scene), Monica's apartment (debrief)",
+          "One guest character: the date",
+          "No special props or effects required"
+        ],
+        "thematic_focus": "Authenticity over performance; being genuinely yourself is more charming than trying too hard"
+      },
+      "scope_boundaries": {
+        "must_include": [
+          "Ross pivoting to paleontology or dinosaurs at least once during the date",
+          "Rachel giving fashion or social advice with misplaced confidence",
+          "Monica turning the coaching into a competition"
+        ],
+        "must_exclude": [
+          "Ross being intentionally cruel or manipulative — his failures come from obliviousness not malice",
+          "The date being a villain or mean character",
+          "Chandler or Joey as primary characters in this episode"
+        ],
+        "character_focus": ["Ross", "Rachel", "Monica"]
+      },
+      "acceptable_variations": [
+        "The date's gender is not specified and can be any",
+        "The date location can be a restaurant, museum, or Central Perk itself",
+        "Chandler may appear briefly with a one-liner reaction to Ross's coaching session",
+        "The date can end ambiguously (second date possible) or definitively warmly"
+      ]
+    },
+    {
+      "prompt_id": "smelly-cat-recording-s01",
+      "user_prompt": "Phoebe is approached by a professional music producer who wants to record a polished studio version of Smelly Cat, but Phoebe becomes convinced the studio version has lost the 'soul' of her original, leading to a philosophical standoff between art and commerce.",
+      "quality_guidelines": {
+        "narrative_goal": "Phoebe's eccentric artistic integrity clashes with the commercial music world in a way that is funny, warm, and ultimately affirming of her unique perspective; she does not compromise her spiritual/artistic vision for commercial gain",
+        "character_arcs": {
+          "Phoebe": "Initially excited, then increasingly troubled by the polished version losing its 'authentic energy'; ultimately chooses her version's soul over commercial success",
+          "Rachel": "Excited about the commercial opportunity on Phoebe's behalf; learns to respect Phoebe's unconventional values",
+          "Monica": "Pragmatic voice who sees the commercial opportunity but comes around to understanding Phoebe's point"
+        },
+        "comedy_approach": "Phoebe's supernatural and spiritual reasoning stated as matter-of-fact fact; contrast between corporate music world and Phoebe's homespun worldview; the studio producer's increasing bafflement played straight",
+        "emotional_beats": [
+          "Phoebe receives the studio offer with surprise and excitement (Act 1)",
+          "First listen to the polished version — Phoebe's discomfort begins (Act 1 B)",
+          "Phoebe consults her spiritual sources (past life, her mother's spirit, aura reading) (Act 2)",
+          "Confrontation with producer: Phoebe explains the soul of the original (Act 2 midpoint)",
+          "Friends debate commerce vs art; Rachel and Monica shift position (Act 2 break)",
+          "Phoebe's decision: performed with warmth and certainty, not anger (Act 3 close)"
+        ],
+        "production_constraints": [
+          "Maximum 2 sets: Central Perk (where Phoebe performs) and a recording studio set or Monica's apartment as surrogate",
+          "One guest character: the music producer",
+          "No music rights required — reference Smelly Cat lyrics already in canon"
+        ],
+        "thematic_focus": "Artistic integrity vs commercial pressure; the meaning of authenticity; Phoebe's resilient unconventionality"
+      },
+      "scope_boundaries": {
+        "must_include": [
+          "Smelly Cat performed or referenced (lyrics in canon: 'Smelly cat, smelly cat, what are they feeding you?')",
+          "Phoebe invoking at least one supernatural or spiritual reason for her artistic decision",
+          "Phoebe's decision stated with total sincerity and certainty, not defensiveness"
+        ],
+        "must_exclude": [
+          "Phoebe eating meat in any scene",
+          "Phoebe doubting her supernatural beliefs — she states them as facts",
+          "A cynical ending where Phoebe is portrayed as foolish for her choice"
+        ],
+        "character_focus": ["Phoebe", "Rachel", "Monica"]
+      },
+      "acceptable_variations": [
+        "The producer can be enthusiastic or confused — either works comedically",
+        "The B-plot may involve any of the male friends independently",
+        "The studio scene can be shown or implied off-screen with Phoebe reporting back",
+        "Gunther may appear briefly reacting to Phoebe's performance at Central Perk"
+      ]
+    },
+    {
+      "prompt_id": "the-break-argument-s01",
+      "user_prompt": "During a group dinner at Monica's apartment, an offhand comment reignites the 'we were on a break' argument between Ross and Rachel, pulling all six friends into taking sides and threatening to derail the whole evening.",
+      "quality_guidelines": {
+        "narrative_goal": "The friends' attempt to have a normal dinner is derailed by the group's oldest unresolved tension; the argument escalates through misunderstandings and side-taking before resolving not with definitive resolution of the break question (which is intentionally left open) but with warmth and the group choosing friendship over the argument",
+        "character_arcs": {
+          "Ross": "Digs in on 'we were on a break' with characteristic stubbornness; ultimately shows he values Rachel and the group more than winning",
+          "Rachel": "Initially tries not to engage; gets drawn in; shows vulnerability beneath the frustration",
+          "Monica": "Tries to manage the chaos of her dinner while being pulled into taking sides",
+          "Chandler": "Uses humor to deflect until a sincere moment forces him to acknowledge the real stakes",
+          "Joey": "Genuinely confused about whose side to take; provides comic relief and unexpected emotional insight",
+          "Phoebe": "Attempts to mediate using her unique spiritual perspective; accidentally makes things worse before better"
+        },
+        "comedy_approach": "Ensemble escalation comedy: each friend's attempt to help makes the situation worse; Joey's simple-minded perspective cuts through the complexity; Phoebe's mediation backfires hilariously",
+        "emotional_beats": [
+          "Normal dinner opening; lighthearted group dynamic (Act 1 cold open)",
+          "Offhand comment reignites the break argument (Act 1 inciting incident)",
+          "Friends take sides — comedic alignment chaos (Act 1 close)",
+          "Each friend's intervention escalates the argument further (Act 2)",
+          "The dinner is completely derailed; Monica's exasperation peaks (Act 2 break)",
+          "Joey's unexpectedly simple observation cuts through the noise (Act 3 open)",
+          "Resolution: group chooses friendship over the argument; the break question remains open (Act 3 close)"
+        ],
+        "production_constraints": [
+          "Single primary set: Monica's apartment dining area",
+          "Full ensemble cast: all 6 core characters must appear",
+          "No guest characters required"
+        ],
+        "thematic_focus": "The tension between old wounds and present friendship; choosing the relationship over being right"
+      },
+      "scope_boundaries": {
+        "must_include": [
+          "The phrase 'we were on a break' or clear reference to the canonical Ross/Rachel argument",
+          "All 6 core characters (Rachel, Monica, Phoebe, Joey, Chandler, Ross) with speaking roles",
+          "Monica's dinner being disrupted by the argument (her apartment, her cooking, her role as host)",
+          "Joey providing unexpected but emotionally accurate insight"
+        ],
+        "must_exclude": [
+          "Definitive resolution of whether they were or were not on a break — this is intentionally left open per canon",
+          "Any character being portrayed as definitively wrong and accepting it",
+          "Physical altercation or genuine cruelty between Ross and Rachel"
+        ],
+        "character_focus": ["Ross", "Rachel", "Monica", "Chandler", "Joey", "Phoebe"]
+      },
+      "acceptable_variations": [
+        "The offhand comment that reignites the argument can come from any character",
+        "Side-taking alignment can vary (no canonical correct alignment)",
+        "The dinner can be for any occasion (birthday, holiday, casual)",
+        "Chandler's sincere moment can be delivered as a joke that lands seriously"
+      ]
+    }
+  ]
+}

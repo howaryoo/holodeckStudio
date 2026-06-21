@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "EvaluationResult",
+  "description": "Schema for the structured evaluation output produced by the JudgeAgent for one script",
+  "type": "object",
+  "required": ["result_id", "script_id", "golden_entry_id", "dimension_scores", "overall_score", "passed_quality_gate", "red_flags_triggered", "guideline_comparison", "evaluation_timestamp"],
+  "properties": {
+    "result_id": { "type": "string", "format": "uuid" },
+    "script_id": { "type": "string" },
+    "golden_entry_id": { "type": "string" },
+    "dimension_scores": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "required": ["dimension", "score", "weight", "reasoning", "evidence"],
+        "properties": {
+          "dimension": {
+            "type": "string",
+            "enum": [
+              "narrative_coherence",
+              "character_consistency",
+              "comedy_effectiveness",
+              "dialogue_naturalness",
+              "story_structure",
+              "emotional_impact",
+              "production_feasibility",
+              "thematic_alignment"
+            ]
+          },
+          "score": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+          "weight": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+          "reasoning": { "type": "string" },
+          "evidence": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "overall_score": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+    "passed_quality_gate": { "type": "boolean", "description": "True if overall_score >= 0.35" },
+    "red_flags_triggered": { "type": "array", "items": { "type": "string" } },
+    "guideline_comparison": {
+      "type": "object",
+      "required": ["met", "partially_met", "missed"],
+      "properties": {
+        "met": { "type": "array", "items": { "type": "string" } },
+        "partially_met": { "type": "array", "items": { "type": "string" } },
+        "missed": { "type": "array", "items": { "type": "string" } },
+        "variation_used": { "type": ["string", "null"] }
+      }
+    },
+    "evaluation_timestamp": { "type": "string", "format": "date-time" },
+    "previous_score": { "type": ["number", "null"], "minimum": 0.0, "maximum": 1.0 },
+    "regression_detected": { "type": "boolean" }
+  }
+}

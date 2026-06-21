@@ -78,6 +78,9 @@ class Settings(BaseSettings):
     holodeck_model_critic: str = Field(
         default="", description="Model override for Critic agent"
     )
+    holodeck_model_evaluator: str = Field(
+        default="", description="Model override for Judge/Evaluator agent"
+    )
 
     # Application
     holodeck_default_mode: str = Field(
