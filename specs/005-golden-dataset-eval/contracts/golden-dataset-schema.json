@@ -1,0 +1,91 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Friends Golden Dataset",
+  "description": "Schema for the golden dataset fixture files used in evaluation",
+  "type": "object",
+  "required": ["version", "show", "entries"],
+  "properties": {
+    "version": { "type": "string", "description": "Dataset version, e.g. '1.0'" },
+    "show": { "type": "string", "description": "Reference show, e.g. 'Friends'" },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["prompt_id", "user_prompt", "quality_guidelines", "scope_boundaries", "acceptable_variations"],
+        "properties": {
+          "prompt_id": { "type": "string", "description": "Unique slug for this test case, e.g. 'rival-chef-s01'" },
+          "user_prompt": { "type": "string", "description": "The sitcom episode concept prompt passed to the generation pipeline" },
+          "quality_guidelines": {
+            "type": "object",
+            "required": ["narrative_goal", "character_arcs", "comedy_approach", "emotional_beats", "production_constraints", "thematic_focus"],
+            "properties": {
+              "narrative_goal": { "type": "string" },
+              "character_arcs": { "type": "object", "additionalProperties": { "type": "string" } },
+              "comedy_approach": { "type": "string" },
+              "emotional_beats": { "type": "array", "items": { "type": "string" } },
+              "production_constraints": { "type": "array", "items": { "type": "string" } },
+              "thematic_focus": { "type": "string" }
+            }
+          },
+          "scope_boundaries": {
+            "type": "object",
+            "required": ["must_include", "must_exclude", "character_focus"],
+            "properties": {
+              "must_include": { "type": "array", "items": { "type": "string" } },
+              "must_exclude": { "type": "array", "items": { "type": "string" } },
+              "character_focus": { "type": "array", "items": { "type": "string" } }
+            }
+          },
+          "acceptable_variations": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string" },
+            "description": "Valid alternative ways to achieve the quality guidelines"
+          },
+          "created_by": { "type": "string", "default": "content-team" },
+          "version": { "type": "string", "default": "1.0" }
+        }
+      }
+    }
+  },
+  "example": {
+    "version": "1.0",
+    "show": "Friends",
+    "entries": [
+      {
+        "prompt_id": "rival-chef-s01",
+        "user_prompt": "Monica discovers a rival chef is opening a restaurant next door and becomes obsessed with outdoing them, while Chandler tries to stay out of it but gets accidentally involved.",
+        "quality_guidelines": {
+          "narrative_goal": "Monica's competitive obsession escalates to absurdity before she finds perspective through Chandler's accidental involvement",
+          "character_arcs": {
+            "Monica": "Starts hyper-competitive, escalates to chaos, lands with self-awareness and warmth",
+            "Chandler": "Tries to avoid conflict, gets dragged in, defuses with humor"
+          },
+          "comedy_approach": "Escalating situational comedy driven by Monica's competitiveness; Chandler's sarcastic deflection as counterpoint",
+          "emotional_beats": [
+            "Monica's excitement at competition (Act 1)",
+            "Chandler's exasperated but loving support (Act 2)",
+            "Monica's brief moment of doubt (Act 2 break)",
+            "Resolution: warmth and humor (Act 3)"
+          ],
+          "production_constraints": [
+            "Maximum 2 sets: Monica's restaurant kitchen and Central Perk",
+            "No more than 2 guest characters"
+          ],
+          "thematic_focus": "Competitiveness vs self-acceptance; love as grounding force"
+        },
+        "scope_boundaries": {
+          "must_include": ["Monica cooking or in kitchen context", "Chandler sarcastic comment", "At least one callback to Monica's competitive history"],
+          "must_exclude": ["Ross dinosaur subplot (off-focus)", "Phoebe supernatural subplot (off-focus)"],
+          "character_focus": ["Monica", "Chandler"]
+        },
+        "acceptable_variations": [
+          "The rival chef can be male or female",
+          "Central Perk scenes may be replaced by Monica and Chandler's apartment",
+          "Joey can appear as a supporting character providing comic relief"
+        ]
+      }
+    ]
+  }
+}
