@@ -18,12 +18,18 @@ from holodeck.evaluation.schemas import (
 if TYPE_CHECKING:
     from agno.models.base import Model
 
+    from holodeck.config.settings import Settings
+
 logger = logging.getLogger(__name__)
 
 
 class EvaluationRunner:
-    def __init__(self, model: Model | None = None) -> None:
+    def __init__(self, model: Model | None = None, settings: Settings | None = None) -> None:
         from holodeck.agents.evaluation.judge import JudgeAgent
+        from holodeck.config.registry import model_for_agent
+
+        if model is None:
+            model = model_for_agent("evaluator", settings)
 
         self._judge = JudgeAgent(model=model)
 

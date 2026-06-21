@@ -27,7 +27,7 @@ def _build_system_prompt() -> str:
         for name, meta in dims.items()
     )
 
-    return f"""You are a Judge agent that evaluates sitcom scripts for the Friends TV show.
+    return f"""You are a Judge agent that evaluates sitcom scripts against a franchise bible.
 
 Given a generated script and the quality guidelines it was meant to satisfy, you score
 the script across exactly 8 evaluation dimensions.
@@ -78,7 +78,7 @@ class JudgeAgent:
         if self._agent is None:
             kwargs: dict = dict(
                 name="Judge",
-                role="Script quality judge for Friends-universe sitcom evaluation",
+                role="Script quality judge for sitcom evaluation",
                 instructions=[_build_system_prompt()],
             )
             if self._model is not None:

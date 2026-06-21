@@ -114,19 +114,17 @@ class EvaluationDimension:
             ],
         },
         "character_consistency": {
-            "description": "Do characters behave in ways consistent with their established Friends personalities?",
+            "description": "Do characters behave in ways consistent with their established personalities from the franchise bible?",
             "weight": 0.20,
             "signals": [
-                "Speech patterns match character bible",
-                "Decisions align with character motivations",
-                "Red flag behaviors from bible are absent",
+                "Speech patterns match the character bible",
+                "Decisions align with each character's established motivations",
+                "No behavior contradicts the franchise bible's red-flag list",
             ],
             "red_flags": [
-                "Joey shares food willingly",
-                "Phoebe eats meat",
-                "Monica's apartment is described as messy",
-                "Ross lets a disagreement go without comment",
-                "Chandler gives sincere emotional speech with no joke follow-up",
+                "Character behavior directly contradicts their established personality",
+                "Character knowledge or skill contradicts their established background",
+                "Character uses speech patterns inconsistent with their established voice",
             ],
         },
         "comedy_effectiveness": {
@@ -146,10 +144,10 @@ class EvaluationDimension:
             "description": "Does dialogue feel authentic to each character's voice and the show's tone?",
             "weight": 0.15,
             "signals": [
-                "Chandler's ironic emphasis present in his lines",
-                "Joey uses simple vocabulary; no academic terms",
-                "Ross over-explains or pivots to paleontology at least once",
-                "Lines are snappy; no monologue exceeds 6 sentences",
+                "Each character's vocabulary and cadence matches their established voice",
+                "Dialogue avoids exposition dumps — information emerges naturally",
+                "Lines are snappy; no single character monologue exceeds 6 sentences",
+                "Characters react to each other rather than speaking past each other",
             ],
             "red_flags": [
                 "Character uses vocabulary inconsistent with their education/background",
@@ -174,7 +172,7 @@ class EvaluationDimension:
             "weight": 0.10,
             "signals": [
                 "At least one scene of genuine emotional connection between characters",
-                "Conflict resolves with warmth (Friends tone: never cynical)",
+                "Conflict resolves in a manner consistent with the show's established tone",
                 "Audience would care about the outcome",
             ],
             "red_flags": [
@@ -186,8 +184,8 @@ class EvaluationDimension:
             "description": "Can this episode be produced within a standard Friends production context?",
             "weight": 0.10,
             "signals": [
-                "All scenes set in known Friends locations or one new set",
-                "No more than 6 speaking roles (core cast + 2 guests max)",
+                "All scenes set in established show locations or one new set",
+                "Speaking roles stay within the show's typical cast size",
                 "No scenes requiring special effects or unusual props",
             ],
             "red_flags": [
@@ -201,11 +199,11 @@ class EvaluationDimension:
             "signals": [
                 "Central theme stated or implied in dialogue",
                 "Character actions reinforce theme",
-                "Theme consistent with Friends' core values (friendship, loyalty, growth)",
+                "Theme consistent with the show's established core values",
             ],
             "red_flags": [
                 "Episode has no identifiable theme",
-                "Theme contradicts Friends' warm, optimistic tone",
+                "Theme contradicts the show's established tone",
             ],
         },
     }
