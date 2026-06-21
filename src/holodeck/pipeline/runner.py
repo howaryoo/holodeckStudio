@@ -159,6 +159,7 @@ class ProductionPipeline:
         output: str = "./output",
         use_cache: bool = True,
         budget: float | None = None,
+        script_only: bool = False,
     ) -> PipelineResult:
         from holodeck.memory.production import ProductionMemory
         from holodeck.memory.episode import EpisodeMemory
@@ -247,6 +248,15 @@ class ProductionPipeline:
             await self.orchestrator.complete_stage(
                 production_id, episode_id, stage_id, StageType.SCRIPT, "staff_writer"
             )
+
+            if script_only:
+                await self.orchestrator.complete_production(production_id, output)
+                return PipelineResult(
+                    production_id=str(production_id),
+                    script=context["script"],
+                    canon_report="",
+                    critique="",
+                )
 
             # Checkpoint: SCRIPT approval (emits event; supervised mode pauses via CLI)
             await self.orchestrator.checkpoint_approval(

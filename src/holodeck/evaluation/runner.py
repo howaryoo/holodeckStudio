@@ -27,9 +27,11 @@ class EvaluationRunner:
     def __init__(self, model: Model | None = None, settings: Settings | None = None) -> None:
         from holodeck.agents.evaluation.judge import JudgeAgent
         from holodeck.config.registry import model_for_agent
+        from holodeck.config.settings import Settings as _Settings
 
+        self._settings = settings or _Settings()
         if model is None:
-            model = model_for_agent("evaluator", settings)
+            model = model_for_agent("evaluator", self._settings)
 
         self._judge = JudgeAgent(model=model)
 
@@ -75,6 +77,43 @@ class EvaluationRunner:
 
         self._persist(result)
         return result
+
+    def run_full(self, entry: GoldenDatasetEntry) -> EvaluationResult:
+        """Run ProductionPipeline for entry.user_prompt, then evaluate the script."""
+        import asyncio
+
+        from holodeck.pipeline.runner import ProductionPipeline
+
+        logger.info("run_full: running pipeline for '%s'", entry.prompt_id)
+        pipeline = ProductionPipeline(settings=self._settings)
+        pipeline_result = asyncio.run(pipeline.run(entry.user_prompt, script_only=True))
+
+        script_content = pipeline_result.script
+        logger.info("run_full: script ready (%d chars), evaluating", len(script_content))
+        return self.evaluate_single(entry, script_content=script_content)
+
+    def run_full_batch(self, entries: list[GoldenDatasetEntry]) -> BatchEvaluationReport:
+        results: list[EvaluationResult] = []
+        failures: list[EvaluationFailure] = []
+
+        for entry in entries:
+            try:
+                results.append(self.run_full(entry))
+            except Exception as exc:
+                logger.warning("run_full failed for %s: %s", entry.prompt_id, exc)
+                failures.append(
+                    EvaluationFailure(
+                        golden_entry_id=entry.prompt_id,
+                        error_message=str(exc),
+                        error_type=type(exc).__name__,
+                    )
+                )
+
+        return BatchEvaluationReport(
+            golden_dataset_version="1.0",
+            evaluation_results=results,
+            failures=failures,
+        )
 
     def run_batch(self, entries: list[GoldenDatasetEntry], **kwargs: object) -> BatchEvaluationReport:
         results: list[EvaluationResult] = []

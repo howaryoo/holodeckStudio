@@ -3,7 +3,10 @@
 Usage:
     uv run python tests/evals/script_eval.py --validate-only
     uv run python tests/evals/script_eval.py --entry rival-chef-s01
+    uv run python tests/evals/script_eval.py --entry rival-chef-s01 --script-file /path/to/script.txt
+    uv run python tests/evals/script_eval.py --entry rival-chef-s01 --dry-run
     uv run python tests/evals/script_eval.py --all
+    uv run python tests/evals/script_eval.py --all --dry-run
 """
 from __future__ import annotations
 
@@ -31,7 +34,7 @@ def cmd_validate_only() -> int:
     return 0
 
 
-def cmd_single(prompt_id: str) -> int:
+def cmd_single(prompt_id: str, dry_run: bool = False, script_file: str | None = None) -> int:
     from holodeck.evaluation.loader import GoldenDatasetValidationError, load_golden_dataset
     from holodeck.evaluation.runner import EvaluationRunner
 
@@ -50,8 +53,21 @@ def cmd_single(prompt_id: str) -> int:
     entry = matching[0]
     runner = EvaluationRunner()
 
-    print(f"Evaluating '{prompt_id}' (dry-run — no LLM script generation)...")
-    result = runner.evaluate_single(entry, dry_run=True)
+    if dry_run:
+        print(f"Evaluating '{prompt_id}' (dry-run — stub scores, no LLM calls)...")
+        result = runner.evaluate_single(entry, dry_run=True)
+    elif script_file:
+        script_path = Path(script_file)
+        if not script_path.exists():
+            print(f"❌ Script file not found: {script_file}", file=sys.stderr)
+            return 1
+        script_content = script_path.read_text(encoding="utf-8")
+        print(f"Evaluating '{prompt_id}' with provided script ({len(script_content)} chars)...")
+        result = runner.evaluate_single(entry, script_content=script_content)
+    else:
+        print(f"Evaluating '{prompt_id}' — generating script via pipeline then scoring...")
+        print(f"  Prompt: {entry.user_prompt[:80]}...")
+        result = runner.run_full(entry)
 
     output = {
         "result_id": str(result.result_id),
@@ -61,7 +77,12 @@ def cmd_single(prompt_id: str) -> int:
         "passed_quality_gate": result.passed_quality_gate,
         "regression_detected": result.regression_detected,
         "dimension_scores": [
-            {"dimension": ds.dimension, "score": ds.score, "weighted": round(ds.weighted_score, 4)}
+            {
+                "dimension": ds.dimension,
+                "score": ds.score,
+                "weighted": round(ds.weighted_score, 4),
+                "reasoning": ds.reasoning,
+            }
             for ds in result.dimension_scores
         ],
     }
@@ -69,7 +90,7 @@ def cmd_single(prompt_id: str) -> int:
     return 0
 
 
-def cmd_all(dry_run: bool = True) -> int:
+def cmd_all(dry_run: bool = False) -> int:
     from holodeck.evaluation.loader import GoldenDatasetValidationError, load_golden_dataset
     from holodeck.evaluation.reporter import BatchReporter
     from holodeck.evaluation.runner import EvaluationRunner
@@ -80,9 +101,14 @@ def cmd_all(dry_run: bool = True) -> int:
         print(f"❌ Dataset validation failed: {e}", file=sys.stderr)
         return 1
 
-    print(f"Running batch evaluation on {len(entries)} entries (dry_run={dry_run})...")
     runner = EvaluationRunner()
-    report = runner.run_batch(entries, dry_run=dry_run)
+
+    if dry_run:
+        print(f"Running batch evaluation on {len(entries)} entries (dry-run)...")
+        report = runner.run_batch(entries, dry_run=True)
+    else:
+        print(f"Running batch evaluation on {len(entries)} entries (live — pipeline + LLM scoring)...")
+        report = runner.run_full_batch(entries)
 
     reporter = BatchReporter()
     report.summary_statistics = reporter.aggregate(report.evaluation_results, report.failures)
@@ -109,19 +135,30 @@ def cmd_all(dry_run: bool = True) -> int:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Friends golden dataset evaluation")
+    parser = argparse.ArgumentParser(description="Sitcom golden dataset evaluation")
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--validate-only", action="store_true", help="Validate dataset structure only")
     group.add_argument("--entry", metavar="PROMPT_ID", help="Evaluate a single golden dataset entry")
     group.add_argument("--all", action="store_true", dest="all_entries", help="Evaluate all entries")
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        default=False,
+        help="Skip LLM calls; return zero-score stubs (default: live evaluation)",
+    )
+    parser.add_argument(
+        "--script-file",
+        metavar="PATH",
+        help="Evaluate a pre-written script file instead of generating one (use with --entry)",
+    )
     args = parser.parse_args()
 
     if args.validate_only:
         sys.exit(cmd_validate_only())
     elif args.entry:
-        sys.exit(cmd_single(args.entry))
+        sys.exit(cmd_single(args.entry, dry_run=args.dry_run, script_file=args.script_file))
     elif args.all_entries:
-        sys.exit(cmd_all(dry_run=True))
+        sys.exit(cmd_all(dry_run=args.dry_run))
 
 
 if __name__ == "__main__":
