@@ -34,6 +34,7 @@ class PipelineResult:
     qa_report: str = ""
     audience_report: str = ""
     dialogue_audio_urls: list[str] | None = None
+    dialogue_audio_metadata: list[dict] | None = None
     frame_paths: list[str] | None = None
     video_url: str = ""
     stage_outputs: dict = field(default_factory=dict)
@@ -690,6 +691,7 @@ class ProductionPipeline:
                 qa_report=context.get("qa_report", ""),
                 audience_report=context.get("audience_report", ""),
                 dialogue_audio_urls=context.get("dialogue_audio_urls"),
+                dialogue_audio_metadata=context.get("dialogue_audio_metadata"),
                 frame_paths=context.get("frame_paths"),
                 video_url=context.get("video_url", ""),
                 stage_outputs={
@@ -714,6 +716,7 @@ class ProductionPipeline:
                     "qa_report": result.qa_report,
                     "audience_report": result.audience_report,
                     "dialogue_audio_urls": result.dialogue_audio_urls,
+                    "dialogue_audio_metadata": result.dialogue_audio_metadata,
                     "frame_paths": result.frame_paths,
                     "video_url": result.video_url,
                     "stage_outputs": result.stage_outputs,

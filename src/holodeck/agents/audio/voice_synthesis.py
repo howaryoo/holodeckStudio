@@ -225,6 +225,7 @@ class VoiceSynthesisAgent:
 
         providers = self._get_providers()
         audio_urls: list[str] = []
+        audio_metadata: list[dict] = []
         engines_used: set[str] = set()
 
         for i, (char, text) in enumerate(lines[:50]):
@@ -239,6 +240,7 @@ class VoiceSynthesisAgent:
                     ).result()
                 if ok:
                     audio_urls.append(output_path)
+                    audio_metadata.append({"file": output_path, "character": char, "text": text})
                     engines_used.add(type(provider).__name__.removesuffix("Provider").lower())
                     handled = True
                     break
@@ -251,6 +253,7 @@ class VoiceSynthesisAgent:
 
         tts_engine = ", ".join(sorted(engines_used)) if engines_used else "none"
         context["dialogue_audio_urls"] = audio_urls
+        context["dialogue_audio_metadata"] = audio_metadata
         return AgentOutput(
             content=f"Generated {len(audio_urls)} dialogue audio files using {tts_engine}.",
             metadata={
