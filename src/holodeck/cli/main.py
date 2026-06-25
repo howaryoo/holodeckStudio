@@ -33,7 +33,12 @@ def _validate_prompt(prompt: str) -> tuple[bool, str]:
 
 
 def _display_media(result: PipelineResult, console: Console) -> None:
-    if result.dialogue_audio_urls:
+    if result.dialogue_audio_metadata:
+        console.print("\n[bold]=== DIALOGUE AUDIO ===[/bold]")
+        for entry in result.dialogue_audio_metadata:
+            console.print(f"  [{entry['character']}] {entry['text']}")
+            console.print(f"    → {entry['file']}")
+    elif result.dialogue_audio_urls:
         console.print("\n[bold]=== DIALOGUE AUDIO ===[/bold]")
         for url in result.dialogue_audio_urls:
             console.print(f"  {url}")
@@ -71,9 +76,11 @@ def produce(
         from holodeck.cache import PipelineCache
         cached = PipelineCache().get(prompt, bible, mode)
         if cached is not None:
+            import os as _os
             console.print("[yellow]Returning cached result. Use --no-cache to force fresh LLM calls.[/yellow]")
             console.print("\n[green]Production (cached) complete![/green]")
             console.print(f"  Production ID: {cached.get('production_id', '?')}")
+            console.print(f"  Output folder: {_os.path.abspath(output)}")
             console.print("\n[bold]=== SCRIPT ===[/bold]")
             console.print(cached.get("script", "")[:2000])
             if len(cached.get("script", "")) > 2000:
@@ -97,7 +104,12 @@ def produce(
             if cached.get("audience_report"):
                 console.print("\n[bold]=== AUDIENCE SIMULATION ===[/bold]")
                 console.print(cached["audience_report"][:500])
-            if cached.get("dialogue_audio_urls"):
+            if cached.get("dialogue_audio_metadata"):
+                console.print("\n[bold]=== DIALOGUE AUDIO ===[/bold]")
+                for entry in cached["dialogue_audio_metadata"]:
+                    console.print(f"  [{entry['character']}] {entry['text']}")
+                    console.print(f"    → {entry['file']}")
+            elif cached.get("dialogue_audio_urls"):
                 console.print("\n[bold]=== DIALOGUE AUDIO ===[/bold]")
                 for url in cached["dialogue_audio_urls"]:
                     console.print(f"  {url}")
@@ -129,7 +141,9 @@ def produce(
             use_cache=not no_cache,
             budget=budget,
         ))
+        import os as _os
         console.print(f"\n[green]Production {result.production_id} complete![/green]")
+        console.print(f"  Output folder: {_os.path.abspath(output)}")
         console.print("\n[bold]=== SCRIPT ===[/bold]")
         console.print(result.script[:2000])
         if len(result.script) > 2000:
