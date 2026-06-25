@@ -26,6 +26,7 @@ dependencies = [
     "redis>=8.0.0",
     "gtts>=2.5.0",
     "ffmpeg-python>=0.2.0",
+    "elevenlabs>=1.0.0",
 ]
 
 [project.optional-dependencies]

@@ -1,303 +1,203 @@
 # Research: 11Labs Voice Clone Integration
 
-**Date**: 2026-06-25  
-**Purpose**: Resolve technical unknowns and validate design decisions for 11Labs API integration
+**Phase**: 0 — Research
+**Date**: 2026-06-25
+**Feature**: `006-elevenlabs-voice-clone`
 
-## Research Topics
+---
 
-### 1. 11Labs API Capabilities & Rate Limiting
+## Decision 1: ElevenLabs Python SDK API
 
-**Decision**: Use 11Labs Python SDK (`elevenlabs` package) for voice cloning via voice samples
+**Decision**: Use `elevenlabs>=1.0.0` (already declared in `pyproject.toml`) with the `ElevenLabs`
+client class from `elevenlabs.client`.
 
-**Rationale**: 
-- Official Python SDK handles authentication, rate limiting, and request/response marshaling
-- Supports voice cloning via initial voice sample upload or by passing raw audio bytes
-- Well-documented API with clear error handling patterns
-- Community support and active maintenance
+**Verified API surface** (SDK ≥1.0.0):
 
-**Alternatives Considered**:
-- Direct HTTP REST API calls (more verbose, less reliable error handling)
-- Inference library (would require complex audio processing; not appropriate for production)
-- Piper TTS only (original approach; no voice cloning capability)
-
-**Key Findings**:
-- 11Labs API requires API key authentication (stored in environment variable)
-- Voice cloning is supported via `elevenlabs.client.voices.create_voice()` with audio sample
-- Speech synthesis via `elevenlabs.client.text_to_speech.convert()` with generated voice ID
-- Rate limits: Tier-dependent; assume 500 requests/minute for MVP (typical for hobby/starter tier)
-- Cost: Usage-based pricing; sample generation and synthesis both consume credits
-
-**Implementation Approach**:
 ```python
 from elevenlabs.client import ElevenLabs
+from elevenlabs import VoiceSettings
 
-client = ElevenLabs(api_key=os.getenv("ELEVENLABS_API_KEY"))
+client = ElevenLabs(api_key="...")
 
-# Create voice ID from sample (once per actor)
-response = client.voices.create_voice(
-    name="rachel_green",
-    files=[open("rachel_sample.mp3", "rb")],
+# Clone voice from audio samples — returns a Voice object
+voice = client.voices.add(
+    name="Rachel Green",
     description="Rachel Green from Friends",
+    files=["path/to/sample.mp3"],  # list of file paths (str or Path)
 )
-voice_id = response.voice_id
+voice_id: str = voice.voice_id
 
-# Synthesize dialogue (reuse voice_id for all subsequent calls)
-audio_bytes = client.text_to_speech.convert(
+# Synthesize speech — returns Iterator[bytes]
+audio_chunks = client.text_to_speech.convert(
     voice_id=voice_id,
     text="That's not even a word!",
     model_id="eleven_monolingual_v1",
+    voice_settings=VoiceSettings(
+        stability=0.5,
+        similarity_boost=0.75,
+        use_speaker_boost=False,
+    ),
 )
+audio_bytes = b"".join(audio_chunks)  # collect and write to .mp3
+
+# Delete a cloned voice (cleanup)
+client.voices.delete(voice_id)
 ```
 
-**Rate Limiting Strategy**:
-- Implement exponential backoff on 429 (Too Many Requests) responses
-- Cache generated voice IDs in-process to avoid re-cloning the same sample
-- Log all API calls with latency for observability (Langfuse tracing)
+**Default free-tier model**: `"eleven_monolingual_v1"` (~10K chars/month).
+
+**Rationale**: Official SDK with type-safe voice settings; already in requirements.
+
+**Alternatives considered**: Raw `httpx` REST calls — rejected; verbose, manual auth headers, no type safety.
 
 ---
 
-### 2. Audio Sample Validation
+## Decision 2: Character Reference Strategy
 
-**Decision**: Validate audio samples on upload for format, duration, and quality
+**Decision**: `ActorVoiceSample` stores `bible_id` (UUID FK to `franchise_bibles.id`) and
+`character_name` as a plain string. No FK to a `characters` table.
 
-**Rationale**: 
-- Prevent corrupted files from being stored in Bible
-- Ensure audio meets 11Labs minimum requirements (sample duration)
-- Provide early feedback to admins before attempting API calls
+**Rationale**:
+- Inspected `src/holodeck/storage/postgres.py`: the schema contains `franchise_bibles`,
+  `bible_entries`, `productions`, `episodes`, `stages`, `assets` — **no `characters` table exists**.
+- `VoiceSynthesisAgent.process()` already dispatches by character name string; a string key is
+  sufficient for MVP lookup ("Rachel Green").
+- A unique constraint on `(bible_id, character_name)` where `is_active=True` enforces the
+  "one active sample per character" rule at the DB level without a FK to a missing table.
 
-**Alternatives Considered**:
-- Validate only on first API call (defer validation; risk storing bad data)
-- No validation (trust user input; dangerous and poor UX)
+**Alternatives considered**:
+- FK to `bible_entries.id` — rejected; BibleEntries can be deleted without cascade, creating
+  orphaned voice samples; also requires character entries to exist before uploading samples.
+- Create a new `characters` table — rejected; out of scope for this feature.
 
-**Key Findings**:
-- 11Labs requires audio sample >= 30 seconds, <= 10 minutes
-- Supported formats: MP3, WAV, OGG, FLAC (via ffprobe + ffmpeg)
-- Audio quality: Mono or stereo, 8-48 kHz sample rate
-- Recommendation: Extract metadata using `librosa` (already a dependency in piper-tts)
+---
 
-**Implementation Approach**:
+## Decision 3: VoiceSynthesisConfig Storage
+
+**Decision**: Store voice synthesis configuration (model, stability, similarity_boost,
+use_speaker_boost) as new fields in the existing `Settings` Pydantic model (`settings.py`),
+backed by env vars. No database table.
+
+**Rationale**:
+- Inspected `src/holodeck/config/settings.py`: every tunable (model, quality gate, timeouts)
+  already lives in `Settings`. Adding `elevenlabs_*` fields is consistent.
+- Free-tier MVP needs one configuration set; per-franchise DB config adds zero behavioral value now.
+- No migration, no repository, no CRUD — materially lower complexity.
+
+**Alternatives considered**:
+- Per-franchise DB table (`voice_synthesis_config`) — rejected; premature, requires 2 extra
+  migration files and a full repository for config no one reads at MVP.
+- JSONB on `franchise_bibles` — rejected; implicit and hard to validate with Pydantic.
+
+---
+
+## Decision 4: Primary Key Type
+
+**Decision**: UUID primary keys (`PGUUID(as_uuid=True)`) for `actor_voice_samples`, consistent
+with every existing ORM model in the project.
+
+**Rationale**: Inspected `postgres.py`: `Production`, `FranchiseBible`, `BibleEntry`, `Episode`,
+`Stage`, `Asset`, `Review`, `AgentExecution` — every table uses `UUID(as_uuid=True)`. Integer
+auto-increment would be a jarring inconsistency.
+
+**Alternatives considered**: Integer auto-increment — rejected; inconsistent with all other tables.
+
+---
+
+## Decision 5: Voice Provider Abstraction (Open/Closed compliance)
+
+**Decision**: Introduce a `VoiceSynthesisProvider` `typing.Protocol` with:
+
 ```python
-import librosa
-
-def validate_audio_sample(file_path: str) -> dict:
-    """Validate audio sample format and duration."""
-    try:
-        y, sr = librosa.load(file_path, sr=None)
-        duration = librosa.get_duration(y=y, sr=sr)
-        
-        if not (30 <= duration <= 600):  # 30s to 10min
-            raise ValueError(f"Duration {duration}s outside 30-600s range")
-        
-        return {
-            "duration_seconds": duration,
-            "sample_rate": sr,
-            "channels": 1 if len(y.shape) == 1 else y.shape[0],
-            "is_valid": True,
-        }
-    except Exception as e:
-        return {"is_valid": False, "error": str(e)}
+class VoiceSynthesisProvider(Protocol):
+    async def synthesize(
+        self, text: str, char_name: str, output_path: str, context: dict
+    ) -> bool: ...
 ```
 
-**Storage Strategy**:
-- Validation happens before MinIO upload
-- Metadata (duration, format, quality) stored in PostgreSQL
-- Failed uploads do not create Bible entries
+`ElevenLabsProvider` and `PiperProvider` are concrete implementations. `VoiceSynthesisAgent.process()`
+selects provider at runtime by checking whether a voice sample exists for the character.
+
+**Rationale**:
+- Constitution IV (Open/Closed): adding a future provider (e.g., Google TTS) = new file, no
+  changes to `voice_synthesis.py`.
+- Constitution V (Dependency Inversion): `VoiceSynthesisAgent` depends on the Protocol abstraction,
+  not on `ElevenLabs` concretely.
+- Existing Piper synthesis helpers (`_synthesize_with_piper`, `_wav_to_mp3`) stay untouched;
+  `PiperProvider` wraps them.
+
+**Alternatives considered**:
+- `if provider == "elevenlabs":` blocks inside `process()` — rejected; every new provider
+  requires another branch, violating Open/Closed.
+- Abstract base class — rejected; Protocol preferred per Constitution V ("prefer Protocol classes
+  and composition over inheritance").
 
 ---
 
-### 3. Voice Sample Storage & Caching
+## Decision 6: Sample Duration Bounds
 
-**Decision**: Store samples in MinIO under `voice-samples/` prefix; cache voice IDs in-process
+**Decision**: `ge=15.0, le=600.0` seconds. Minimum 15s; maximum 600s (10 min).
 
-**Rationale**: 
-- MinIO is existing storage backend; reuse for consistency
-- Voice ID generation is deterministic per sample (11Labs API responsibility)
-- Caching avoids re-cloning the same sample on subsequent productions
-- Persistent cache enables fast lookups during production
+**Rationale**:
+- Spec assumptions say 15–60s (MVP); FR-002 says 30s–10min.
+- 15s minimum: aligns with ElevenLabs actual minimum (~5s, but 15s for quality) and the spec
+  assumption's lower bound.
+- 600s maximum: from FR-002, reserves headroom for longer studio recordings.
+- Reconciliation: take spec assumption for minimum (15s) + FR-002 for maximum (600s).
 
-**Alternatives Considered**:
-- Re-clone sample on every production (expensive API calls, latency)
-- Store voice IDs in Redis (adds infrastructure dependency; over-engineered for MVP)
-- Store only in PostgreSQL (lose advantage of 11Labs voice ID persistence)
-
-**Key Findings**:
-- 11Labs voice IDs are deterministic: same sample → same voice ID every time
-- Voice ID reuse is safe (no risk of voice drift or mutation)
-- 11Labs API returns voice ID on creation; subsequent calls use that ID
-
-**Implementation Approach**:
-```python
-# In-process cache (dict-based for MVP; could be upgraded to Redis)
-voice_id_cache = {}  # { actor_id -> voice_id }
-
-async def get_or_create_voice_id(actor_id: str, sample_path: str) -> str:
-    """Get voice ID from cache or create new via 11Labs API."""
-    if actor_id in voice_id_cache:
-        return voice_id_cache[actor_id]
-    
-    with open(sample_path, "rb") as f:
-        response = client.voices.create_voice(
-            name=f"actor_{actor_id}",
-            files=[f],
-        )
-    
-    voice_id = response.voice_id
-    voice_id_cache[actor_id] = voice_id
-    
-    # Persist to database for recovery after restart
-    await update_voice_sample(actor_id, {"elevenlabs_voice_id": voice_id})
-    
-    return voice_id
-```
+**Alternatives considered**: 30–600s (FR-002 strict) — rejected; spec explicitly says 15s is
+acceptable for MVP quality.
 
 ---
 
-### 4. Voice Synthesis Agent Integration
+## Decision 7: Audio Sample Validation Tool
 
-**Decision**: Extend Voice Synthesis Agent with provider abstraction; implement ElevenLabsVoiceProvider
+**Decision**: Use `ffprobe` (already a system dependency via `ffmpeg`) to extract audio metadata
+for validation. Do **not** introduce `librosa` as a dependency.
 
-**Rationale**: 
-- Follows Open/Closed principle (open for extension, closed for modification)
-- Allows independent testing of providers
-- Fallback to Piper remains default for characters without samples
-- Future franchises can add custom providers without changing core Agent
+**Rationale**:
+- `ffmpeg` + `ffprobe` are already required system tools (see CLAUDE.md: "System dependencies:
+  `ffmpeg`, `convert` (ImageMagick)").
+- `librosa` is not in `pyproject.toml` and adds a large numpy/scipy dependency chain.
+- `ffprobe -v error -show_entries format=duration,format_name` gives format + duration reliably.
 
-**Alternatives Considered**:
-- Modify Voice Agent directly (violates Single Responsibility; tight coupling)
-- Replace Piper with 11Labs globally (loses fallback safety; higher cost)
-- Create separate Voice Agent for 11Labs (duplicate code, hard to maintain)
-
-**Key Findings**:
-- Existing Voice Agent in `src/holodeck/agents/audio/voice_synthesis.py` uses Piper TTS
-- Agent currently has no provider abstraction (monolithic)
-- Current flow: Script → Voice Agent → Piper → Audio file
-
-**Implementation Approach**:
-```python
-# Define provider protocol (Python typing.Protocol)
-class VoiceProvider(Protocol):
-    async def synthesize(self, character: str, text: str) -> bytes:
-        """Generate audio for character dialogue."""
-
-# Refactor Voice Agent to accept provider
-class VoiceSynthesisAgent(BaseAgent):
-    def __init__(self, provider: VoiceProvider):
-        self.provider = provider
-    
-    async def process(self, context: dict) -> dict:
-        for character, dialogue in context["dialogues"]:
-            audio_bytes = await self.provider.synthesize(character, dialogue)
-            # Save to MinIO, update context
-        return context
-
-# Dependency injection in pipeline orchestrator
-voice_sample_provider = ElevenLabsVoiceProvider(
-    api_key=os.getenv("ELEVENLABS_API_KEY"),
-    fallback=PiperVoiceProvider(),
-)
-voice_agent = VoiceSynthesisAgent(provider=voice_sample_provider)
-```
+**Alternatives considered**: `librosa.load()` — rejected; large dependency not already present.
+`mutagen` — possible but `ffprobe` is already available system-wide with zero Python overhead.
 
 ---
 
-### 5. API Failure & Fallback Strategy
+## Decision 8: Alembic Migration Number
 
-**Decision**: On 11Labs API failure (rate limit, timeout, auth error), fall back to Piper TTS with warning log
+**Decision**: `003_add_actor_voice_samples.py` (`revision="003"`, `down_revision="002"`).
 
-**Rationale**: 
-- Production continuity: Videos complete with default voice rather than failing entirely
-- Graceful degradation: Users aware of fallback via logs and optional UI notification
-- Observability: Langfuse tracing captures fallback events for monitoring
-- User-friendly: Clear error messages explain why fallback occurred
-
-**Alternatives Considered**:
-- Retry indefinitely (could hang production; poor UX)
-- Fail hard on API error (production halts; unacceptable)
-- Use Piper only (no voice cloning; defeats feature purpose)
-
-**Key Findings**:
-- 11Labs API uses standard HTTP status codes: 429 (rate limit), 401 (auth), 500 (server)
-- Piper TTS is reliable and always available (local inference, no external dependency)
-- Langfuse tracing can capture fallback events for monitoring and alerting
-
-**Implementation Approach**:
-```python
-class ElevenLabsVoiceProvider(VoiceProvider):
-    def __init__(self, api_key: str, fallback: VoiceProvider):
-        self.client = ElevenLabs(api_key=api_key)
-        self.fallback = fallback
-    
-    async def synthesize(self, character: str, text: str) -> bytes:
-        try:
-            voice_id = await self._get_voice_id(character)
-            audio = self.client.text_to_speech.convert(
-                voice_id=voice_id,
-                text=text,
-            )
-            return audio
-        except Exception as e:
-            logger.warning(
-                f"11Labs API failed for {character}: {e}. Falling back to Piper."
-            )
-            return await self.fallback.synthesize(character, text)
-```
+**Rationale**: Inspected `alembic/versions/`: existing migrations are `001` (initial schema)
+and `002` (evaluation_results). This is the next in sequence.
 
 ---
 
-### 6. Franchise Bible Schema Extension
+## Decision 9: MinIO Storage Path
 
-**Decision**: Add `actor_voice_samples` table to PostgreSQL with foreign key to actors
+**Decision**: Store voice sample files under `voice-samples/{bible_id}/{char_slug}/sample.{ext}`
+within the existing `holodeck-assets` bucket. `char_slug = character_name.lower().replace(" ", "_")`.
 
-**Rationale**: 
-- Persistent storage of voice sample metadata
-- Enables queries by actor/character
-- Supports future expansion to other franchises
-- Alembic migration ensures schema versioning
+**Rationale**: Consistent with existing `media/{production_id}/` prefix convention. Per-bible
+organization enables cascade cleanup when a franchise is deleted. Single bucket keeps MinIO simple.
 
-**Alternatives Considered**:
-- Store only in MinIO metadata (loses queryability; hard to manage)
-- Hardcode voice samples in Python (not scalable; requires code changes)
-- Use separate cache service (adds infrastructure; over-engineered for MVP)
-
-**Key Findings**:
-- Franchise Bible is already stored in PostgreSQL via SQLAlchemy ORM
-- Existing `Franchise` and `Character` tables can be referenced
-- Alembic is configured for migrations in the project
-
-**Schema Design**:
-```python
-class ActorVoiceSample(Base):
-    __tablename__ = "actor_voice_samples"
-    
-    id = Column(Integer, primary_key=True)
-    character_id = Column(Integer, ForeignKey("characters.id"), nullable=False)
-    sample_file_path = Column(String, nullable=False)  # MinIO path
-    elevenlabs_voice_id = Column(String, nullable=True)  # Nullable until first use
-    upload_date = Column(DateTime, default=datetime.utcnow)
-    duration_seconds = Column(Float)
-    source_format = Column(String)  # MP3, WAV, etc.
-    is_active = Column(Boolean, default=True)
-```
+**Alternatives considered**: Separate bucket — rejected; unnecessary bucket proliferation, existing
+`object_store.py` client already targets `holodeck-assets`.
 
 ---
 
-## Summary of Decisions
+## Resolved Issues Summary
 
-| Area | Decision | Confidence | Next Steps |
-|------|----------|------------|-----------|
-| 11Labs API | Use official Python SDK via `elevenlabs` package | High | Verify API key setup in .env.example |
-| Audio Validation | Validate on upload using librosa (duration 30s-10min) | High | Implement validation utility |
-| Storage | MinIO (samples) + PostgreSQL (metadata) + in-process cache (voice IDs) | High | Design migration for ActorVoiceSample table |
-| Integration | VoiceProvider protocol abstraction in Voice Agent | High | Refactor Voice Agent for testability |
-| Fallback | Route to Piper TTS on 11Labs API failure with warning log | High | Implement fallback logic with Langfuse tracing |
-| MVP Scope | 1 character (Rachel Green) for initial validation | High | Start implementation immediately |
-
----
-
-## Open Questions Resolved
-
-✅ **Can 11Labs clone voices accurately?** Yes, documented to achieve 80%+ similarity with quality samples  
-✅ **How much do voice samples cost?** Usage-based pricing; assume $0.30 per 1000 characters for MVP  
-✅ **Can we fall back gracefully?** Yes, Piper TTS provides reliable fallback  
-✅ **Will schema changes break existing productions?** No; Alembic migration ensures backward compatibility  
-✅ **How do we test without exposing API keys?** Mock 11Labs client responses in unit/integration tests  
+| Issue | Resolution |
+|-------|-----------|
+| No `characters` table | `bible_id` UUID FK to `franchise_bibles` + `character_name` string |
+| Integer vs UUID PKs | UUID — matches every existing ORM table |
+| Config: DB table vs Settings | `Settings` (env vars) — consistent with existing pattern |
+| Duration bounds conflict (spec 15-60s vs FR-002 30s-10min) | `ge=15.0, le=600.0` |
+| Provider abstraction | `VoiceSynthesisProvider` Protocol — Open/Closed + Dependency Inversion |
+| ElevenLabs SDK API | `client.voices.add()` + `client.text_to_speech.convert()` |
+| Audio validation tool | `ffprobe` (system dep already present); no `librosa` |
+| Alembic migration number | `003` |
+| MinIO bucket / prefix | `holodeck-assets` / `voice-samples/{bible_id}/{char_slug}/` |
