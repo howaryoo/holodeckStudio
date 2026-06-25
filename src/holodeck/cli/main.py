@@ -183,6 +183,9 @@ def produce(
     except Exception as e:
         console.print(f"[red]Production failed:[/red] {e}")
         raise typer.Exit(code=1) from None
+    finally:
+        from holodeck.observability.observe import flush as _flush
+        _flush()
 
 
 @app.command()
