@@ -58,9 +58,9 @@ After the initial Friends character is working, admins can add voice samples for
 
 - What happens when an audio sample is corrupted or deleted from storage?
 - How does the system handle a character with no stored voice sample (fallback to default voice)?
-- What happens if 11Labs API rate limits are exceeded during high-volume production?
 - How are audio formats handled (MP3 vs WAV vs OGG)?
-- What happens if a voice sample file is too short (< 30 seconds) or too long (> 10 minutes)?
+- What happens if a voice sample file is too short (< 15 seconds) or too long (> 60 seconds)?
+- How does system behave when approaching free tier limit (~10K chars/month)?
 
 ## Requirements *(mandatory)*
 
@@ -100,22 +100,22 @@ After the initial Friends character is working, admins can add voice samples for
 
 ### Measurable Outcomes
 
-- **SC-001**: Admins can upload a voice sample for 1 character and have it successfully stored in < 30 seconds
-- **SC-002**: Voice-generated audio for cloned characters sounds recognizably similar to the real actor (subjective but testable via listening tests; target: 80% match rating by testers)
-- **SC-003**: Voice synthesis latency for cloned voices is < 10 seconds per 1000 characters of text (11Labs API call + audio generation)
-- **SC-004**: System handles up to 100 concurrent voice synthesis requests for different characters without errors
-- **SC-005**: Voice samples can be added for 5+ characters without performance degradation or code changes
-- **SC-006**: 11Labs API unavailability does not block video production (fallback works seamlessly)
-- **SC-007**: Voice cloning feature is production-ready for the Friends franchise with at least 1 character working end-to-end
+- **SC-001**: Admins can upload a 15s voice sample for 1 character and have it stored in < 30 seconds
+- **SC-002**: Voice-generated audio for cloned characters sounds recognizably similar (MVP quality, acceptable for POC; not high-fidelity)
+- **SC-003**: Voice synthesis latency acceptable (< 15 seconds per 1000 characters on free tier)
+- **SC-004**: System stays within 11Labs free tier limits (~10K chars/month)
+- **SC-005**: 11Labs API unavailability does not block video production (fallback to Piper works)
+- **SC-006**: Voice cloning feature works end-to-end for Rachel Green (Friends franchise MVP)
 
 ## Assumptions
 
-- 11Labs API credentials (API key) will be configured via environment variables (ELEVENLABS_API_KEY)
-- Audio samples are stored in MinIO (existing storage backend) under a `voice-samples/` bucket prefix
-- The Franchise Bible schema can be extended to include actor voice sample metadata
-- 11Labs API is reliable enough for production use (SLA-based decision, to be verified during research phase)
-- Voice samples should be 30 seconds to 10 minutes in duration (11Labs typical range; exact limits to be confirmed during research)
-- Starting with 1 character (Rachel Green from Friends) and expanding later does not require future-proofing beyond normal database design
-- The Voice Synthesis Agent (`src/holodeck/agents/audio/voice_synthesis.py`) will be modified, not replaced
-- Existing Piper TTS integration remains as fallback for characters without voice samples
-- Admin interface for Bible management already exists (or will be provided separately)
+- 11Labs **free tier** (no paid plan planned for MVP): ~10,000 characters/month budget
+- 11Labs API credentials (API key) configured via environment variables (ELEVENLABS_API_KEY)
+- Audio samples stored in MinIO under `voice-samples/` bucket prefix
+- Voice samples: **15–60 seconds** (shorter than typical, MVP quality acceptable)
+- Franchise Bible schema extended for voice sample metadata
+- Single character (Rachel Green) MVP — no multi-character scaling planned
+- Voice Synthesis Agent modified (not replaced) to use provider abstraction
+- Existing Piper TTS remains fallback for characters without samples
+- Quality expectations: MVP/POC quality, not polished production (voice may sound robotic or slightly off)
+- Voice cloning quality depends on 11Labs free tier capabilities (limited fidelity)

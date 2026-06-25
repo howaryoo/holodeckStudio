@@ -132,7 +132,7 @@ class TestVoiceSynthesisAgentProcess:
         agent = VoiceSynthesisAgent()
         result = agent.process({"script": "Hero: Hello world", "output_dir": "/tmp"})
         assert result.metadata is not None
-        assert result.metadata.get("tts_engine") in ("gtts", "none")
+        assert result.metadata.get("tts_engine") in ("piper", "gtts", "none")
 
     @patch("holodeck.agents.audio.voice_synthesis._parse_dialogue_lines")
     @patch("holodeck.agents.audio.voice_synthesis._has_piper")

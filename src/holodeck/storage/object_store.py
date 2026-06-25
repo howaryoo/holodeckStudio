@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Protocol
 
 
-
 class ObjectStore(Protocol):
     async def put(self, bucket: str, key: str, data: bytes, content_type: str = "application/octet-stream") -> str:
         ...
@@ -39,7 +38,8 @@ class MinIOObjectStore:
     async def put(self, bucket: str, key: str, data: bytes, content_type: str = "application/octet-stream") -> str:
         import io
 
-        self._client._ensure_bucket_exists(bucket)
+        if not self._client.bucket_exists(bucket):
+            self._client.make_bucket(bucket)
         self._client.put_object(
             bucket,
             key,

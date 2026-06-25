@@ -5,7 +5,8 @@ resolution-markers = [
     "python_full_version >= '3.15'",
     "python_full_version == '3.14.*'",
     "python_full_version == '3.13.*'",
-    "python_full_version < '3.13'",
+    "python_full_version == '3.12.*'",
+    "python_full_version < '3.12'",
 ]
 
 [[package]]
@@ -597,6 +598,23 @@ wheels = [
 ]
 
 [[package]]
+name = "elevenlabs"
+version = "2.54.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "httpx" },
+    { name = "pydantic" },
+    { name = "pydantic-core" },
+    { name = "requests" },
+    { name = "typing-extensions" },
+    { name = "websockets" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/61/8f/063f4288d5e32fb25ed6b01725d5fc19ea2eddc3c4d780ce56acf4bb43e9/elevenlabs-2.54.0.tar.gz", hash = "sha256:9f7c89bf10eb22f8407d961a1fd78fd720a5074a9ad0cd63f5975176812def5f", size = 650826, upload-time = "2026-06-23T14:16:06.533Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/36/6d/8e69c2dfb30f964c010be2669bb7321a5b0e3bc064a6b2e75049add65a35/elevenlabs-2.54.0-py3-none-any.whl", hash = "sha256:52aac7d14f7a1557634c8549e6ec28bb0ea8ed8c228b39d6be4647a6f4463766", size = 1761450, upload-time = "2026-06-23T14:16:04.477Z" },
+]
+
+[[package]]
 name = "ffmpeg-python"
 version = "0.2.0"
 source = { registry = "https://pypi.org/simple" }
@@ -863,6 +881,7 @@ dependencies = [
     { name = "agno" },
     { name = "alembic" },
     { name = "asyncpg" },
+    { name = "elevenlabs" },
     { name = "ffmpeg-python" },
     { name = "google-genai" },
     { name = "gtts" },
@@ -897,6 +916,7 @@ requires-dist = [
     { name = "agno", specifier = ">=1.0.0" },
     { name = "alembic", specifier = ">=1.13.0" },
     { name = "asyncpg", specifier = ">=0.29.0" },
+    { name = "elevenlabs", specifier = ">=1.0.0" },
     { name = "ffmpeg-python", specifier = ">=0.2.0" },
     { name = "google-genai", specifier = ">=2.8.0" },
     { name = "gtts", specifier = ">=2.5.0" },

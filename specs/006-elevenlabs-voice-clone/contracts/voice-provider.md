@@ -1,355 +1,124 @@
-# Contract: VoiceProvider Interface
+# Contract: VoiceSynthesisProvider Interface
 
-**Date**: 2026-06-25  
-**Purpose**: Define the interface contract for voice providers (11Labs, Piper, etc.)
-
-## Overview
-
-The `VoiceProvider` is a protocol that defines how voice synthesis providers must behave. This contract enables:
-- Multiple provider implementations (11Labs, Piper, future providers)
-- Easy testing via mock providers
-- Provider-agnostic Voice Synthesis Agent
-- Safe provider substitution and composition
+**Date**: 2026-06-25
+**Purpose**: Define the Protocol contract for voice synthesis backends
 
 ---
 
-## VoiceProvider Protocol
+## VoiceSynthesisProvider Protocol
 
 ```python
-from typing import Protocol
-from abc import abstractmethod
+# src/holodeck/agents/audio/voice_provider.py
 
-class VoiceProvider(Protocol):
+from typing import Protocol, runtime_checkable
+
+@runtime_checkable
+class VoiceSynthesisProvider(Protocol):
     """
-    Protocol for voice synthesis providers.
-    
-    Any implementation that follows this contract can be used
-    with the Voice Synthesis Agent.
+    Protocol for voice synthesis backends.
+
+    synthesize() writes an MP3 file to output_path and returns True on success.
+    Returning False signals "I cannot handle this request" — the agent tries the next provider.
+    Raising an exception is reserved for unrecoverable errors (e.g., disk full).
     """
-    
+
     async def synthesize(
         self,
-        character_name: str,
         text: str,
-        **kwargs,
-    ) -> bytes:
+        char_name: str,
+        output_path: str,
+        context: dict,
+    ) -> bool:
         """
-        Synthesize dialogue text into audio bytes.
-        
         Args:
-            character_name (str): Character identifier (e.g., "Rachel Green", "rachel_green")
-            text (str): Dialogue text to synthesize
-            **kwargs: Provider-specific options (model, speed, etc.)
-        
+            text:        Dialogue text to synthesize.
+            char_name:   Character display name (e.g., "Rachel Green").
+            output_path: Absolute path where the resulting MP3 must be written.
+            context:     Pipeline context dict; must contain at minimum:
+                         - "bible_id" (str | UUID): franchise bible identifier.
+                         - "production_id" (str): current production identifier.
+
         Returns:
-            bytes: Audio content (MP3 or WAV format, per provider default)
-        
+            True  — MP3 written to output_path successfully.
+            False — Provider cannot handle this (no sample, no key, API unavailable).
+                    Agent will try the next provider in its list.
+
         Raises:
-            VoiceProviderError: If synthesis fails (API error, invalid character, etc.)
-        
-        Behavior:
-            - MUST be async (use in concurrent production pipelines)
-            - MUST return audio bytes immediately (no streaming)
-            - MUST fall back gracefully if the provider fails
-            - MUST log synthesis attempts (for observability)
-            - SHOULD handle provider-specific errors (rate limits, auth) with clear messages
+            Exception — Only on unrecoverable local errors (e.g., disk full, bad output_path).
+                        API errors MUST be caught internally and return False instead.
         """
         ...
 ```
 
 ---
 
-## Exceptions & Error Handling
-
-### VoiceProviderError (Base Exception)
+## Selection Logic in VoiceSynthesisAgent
 
 ```python
-class VoiceProviderError(Exception):
-    """Base exception for voice provider errors."""
-    def __init__(
-        self,
-        message: str,
-        provider: str,
-        character: str,
-        original_error: Optional[Exception] = None,
-    ):
-        self.message = message
-        self.provider = provider
-        self.character = character
-        self.original_error = original_error
-        super().__init__(self.message)
+for provider in self._providers:
+    if await provider.synthesize(text, char_name, output_path, context):
+        break   # first provider that succeeds wins
+else:
+    logger.warning("All providers returned False for %s — skipping line", char_name)
 ```
 
-### Specific Error Types
-
-```python
-class CharacterNotFoundError(VoiceProviderError):
-    """Raised when character has no voice sample stored."""
-    pass
-
-class ProviderAPIError(VoiceProviderError):
-    """Raised when provider API call fails (timeout, 5xx, etc.)."""
-    pass
-
-class RateLimitError(VoiceProviderError):
-    """Raised when provider rate limit is exceeded."""
-    pass
-
-class AuthenticationError(VoiceProviderError):
-    """Raised when API key is invalid or missing."""
-    pass
-
-class InvalidAudioError(VoiceProviderError):
-    """Raised when audio synthesis produces invalid/empty data."""
-    pass
+Default provider list (when no `providers` arg given):
 ```
+[ElevenLabsProvider, PiperProvider]
+```
+When `ELEVENLABS_API_KEY` is empty, `ElevenLabsProvider.synthesize()` returns `False` immediately
+so `PiperProvider` handles all characters (backward-compatible with existing behavior).
 
 ---
 
-## Implementation Requirements
+## Concrete Implementations
 
-### ElevenLabsVoiceProvider
+### ElevenLabsProvider
 
-**Implements**: `VoiceProvider` protocol
+| Attribute | Value |
+|-----------|-------|
+| Returns `False` when | API key empty, no active voice sample for character, any SDK exception |
+| Raises | `KeyError` if `context["bible_id"]` is absent |
+| Side effects | Calls `client.voices.add()` once per sample (caches voice_id in DB) |
+| Observability | `logger.warning(...)` on fallback; all SDK errors logged at WARNING |
 
-**Responsibilities**:
-1. Load API key from `ELEVENLABS_API_KEY` environment variable
-2. Retrieve voice sample metadata from Franchise Bible (character_id → ActorVoiceSample)
-3. Generate or retrieve voice ID from 11Labs API via `get_or_create_voice_id()`
-4. Call 11Labs `text_to_speech.convert()` with configured parameters
-5. Handle API errors with exponential backoff and fallback
-6. Emit Langfuse events for tracing and monitoring
+### PiperProvider
 
-**Configuration Parameters**:
-```python
-class ElevenLabsVoiceProvider:
-    def __init__(
-        self,
-        api_key: str,
-        model_id: str = "eleven_monolingual_v1",
-        voice_stability: float = 0.5,
-        similarity_boost: float = 0.75,
-        use_speaker_boost: bool = False,
-        fallback_provider: VoiceProvider = None,
-        max_retries: int = 3,
-    ):
-        ...
-```
-
-**Example Usage**:
-```python
-provider = ElevenLabsVoiceProvider(
-    api_key=os.getenv("ELEVENLABS_API_KEY"),
-    fallback_provider=PiperVoiceProvider(),
-)
-
-audio_bytes = await provider.synthesize("Rachel Green", "That's not even a word!")
-```
-
-### PiperVoiceProvider
-
-**Implements**: `VoiceProvider` protocol
-
-**Responsibilities**:
-1. Use existing Piper TTS models (already in project)
-2. Map character names to Piper voice models (or use default)
-3. Generate audio via Piper inference
-4. No external API calls (always reliable)
-
-**Configuration Parameters**:
-```python
-class PiperVoiceProvider:
-    def __init__(
-        self,
-        character_voice_map: Dict[str, str] = None,
-        default_voice: str = "en_US-libritts-high",
-    ):
-        ...
-```
-
-**Behavior**:
-- No external dependencies
-- Synchronous inference (wrapped as async for interface consistency)
-- Always succeeds (no error handling needed, unless model loading fails)
+| Attribute | Value |
+|-----------|-------|
+| Returns `False` when | Piper models not installed, synthesis subprocess fails |
+| Raises | Never — all errors caught internally |
+| Side effects | Writes WAV then converts to MP3 via ffmpeg; deletes intermediate WAV |
+| Observability | No external calls; failure is local subprocess error |
 
 ---
 
-## Composition & Fallback
+## Protocol Compliance Tests
 
-### Fallback Pattern
-
-The 11Labs provider can wrap a fallback provider to ensure graceful degradation:
+Every concrete implementation must pass:
 
 ```python
-class FallbackVoiceProvider:
-    """Wraps primary provider with fallback on failure."""
-    
-    def __init__(
-        self,
-        primary: VoiceProvider,
-        fallback: VoiceProvider,
-        enable_logging: bool = True,
-    ):
-        self.primary = primary
-        self.fallback = fallback
-        self.enable_logging = enable_logging
-    
-    async def synthesize(
-        self,
-        character_name: str,
-        text: str,
-        **kwargs,
-    ) -> bytes:
-        try:
-            return await self.primary.synthesize(character_name, text, **kwargs)
-        except Exception as e:
-            if self.enable_logging:
-                logger.warning(
-                    f"Primary provider failed for {character_name}: {e}. "
-                    f"Falling back to {self.fallback.__class__.__name__}."
-                )
-            return await self.fallback.synthesize(character_name, text, **kwargs)
+from holodeck.agents.audio.voice_provider import VoiceSynthesisProvider
+
+def test_satisfies_protocol(provider):
+    assert isinstance(provider, VoiceSynthesisProvider)
+
+async def test_returns_bool(provider, tmp_path):
+    result = await provider.synthesize(
+        text="Hello world",
+        char_name="Test Character",
+        output_path=str(tmp_path / "out.mp3"),
+        context={"bible_id": "test-bible", "production_id": "test-prod"},
+    )
+    assert isinstance(result, bool)
+
+async def test_returns_false_not_raises_on_api_error(provider_with_bad_key, tmp_path):
+    """API errors must become False, not exceptions."""
+    result = await provider_with_bad_key.synthesize(
+        text="Hello",
+        char_name="Rachel Green",
+        output_path=str(tmp_path / "out.mp3"),
+        context={"bible_id": "x", "production_id": "y"},
+    )
+    assert result is False
 ```
-
-### Composition Example
-
-```python
-# Build provider stack
-piper_provider = PiperVoiceProvider()
-elevenlabs_provider = ElevenLabsVoiceProvider(
-    api_key=os.getenv("ELEVENLABS_API_KEY"),
-)
-
-# Wrap with fallback
-voice_provider = FallbackVoiceProvider(
-    primary=elevenlabs_provider,
-    fallback=piper_provider,
-    enable_logging=True,
-)
-
-# Use in Voice Synthesis Agent
-voice_agent = VoiceSynthesisAgent(provider=voice_provider)
-```
-
----
-
-## Testing Contract
-
-### Mock Provider for Unit Tests
-
-```python
-class MockVoiceProvider(VoiceProvider):
-    """Mock provider for testing."""
-    
-    def __init__(self, return_audio: bytes = b"fake_audio"):
-        self.return_audio = return_audio
-        self.calls = []  # Track calls for assertions
-    
-    async def synthesize(
-        self,
-        character_name: str,
-        text: str,
-        **kwargs,
-    ) -> bytes:
-        self.calls.append({
-            "character": character_name,
-            "text": text,
-            "kwargs": kwargs,
-        })
-        return self.return_audio
-```
-
-### Contract Compliance Tests
-
-Every provider implementation MUST pass:
-
-```python
-async def test_provider_synthesize_returns_bytes():
-    """Provider.synthesize() returns bytes."""
-    provider = MyVoiceProvider()
-    result = await provider.synthesize("TestChar", "Hello world")
-    assert isinstance(result, bytes)
-    assert len(result) > 0
-
-async def test_provider_handles_invalid_character():
-    """Provider raises CharacterNotFoundError for unknown character."""
-    provider = MyVoiceProvider()
-    with pytest.raises(CharacterNotFoundError):
-        await provider.synthesize("UnknownChar", "Hello")
-
-async def test_provider_async_interface():
-    """Provider.synthesize() is async."""
-    provider = MyVoiceProvider()
-    result = provider.synthesize("TestChar", "Hello")
-    assert asyncio.iscoroutine(result) or asyncio.isfuture(result)
-    audio = await result
-    assert isinstance(audio, bytes)
-```
-
----
-
-## Observability & Logging
-
-All providers MUST emit the following events via Langfuse/structlog:
-
-```python
-# Before synthesis attempt
-logger.info(
-    "voice_synthesis_start",
-    character=character_name,
-    text_length=len(text),
-    provider=self.__class__.__name__,
-)
-
-# On success
-logger.info(
-    "voice_synthesis_success",
-    character=character_name,
-    audio_size_bytes=len(audio_bytes),
-    latency_ms=elapsed_ms,
-    provider=self.__class__.__name__,
-)
-
-# On failure
-logger.error(
-    "voice_synthesis_failed",
-    character=character_name,
-    error=str(e),
-    provider=self.__class__.__name__,
-    latency_ms=elapsed_ms,
-)
-```
-
----
-
-## Evolution & Versioning
-
-### Adding New Provider
-
-1. Create new class implementing `VoiceProvider` protocol
-2. Pass all contract compliance tests
-3. Update Voice Synthesis Agent to expose provider as configuration option
-4. Document provider-specific configuration in CLAUDE.md
-
-### Changing Interface
-
-Contract changes (adding/removing methods) require:
-1. All existing providers updated to implement new interface
-2. Tests updated
-3. Documentation updated
-4. Migration plan for existing productions (if breaking change)
-
----
-
-## Summary Table
-
-| Aspect | Requirement |
-|--------|-------------|
-| **Async** | MUST be async (`async def`) |
-| **Input** | character_name: str, text: str, **kwargs |
-| **Output** | bytes (audio content) |
-| **Errors** | Raise VoiceProviderError or subclass |
-| **Logging** | Emit structured logs for observability |
-| **Fallback** | Graceful error handling with fallback option |
-| **Caching** | Provider may cache voice IDs internally |
-| **Testing** | Must pass contract compliance tests |
