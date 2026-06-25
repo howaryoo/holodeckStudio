@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from contextlib import nullcontext
 from typing import Any
 
 try:
-    from langfuse import observe as _langfuse_observe
+    from langfuse.decorators import observe as _langfuse_observe
 
     _LANGFUSE_AVAILABLE = True
 except ImportError:
@@ -22,11 +23,11 @@ def observe(
             return fn
         return _noop
 
-    kwargs: dict[str, Any] = {"as_type": as_type}
+    kwargs: dict[str, Any] = {}
     if name:
         kwargs["name"] = name
-    if tags:
-        kwargs["tags"] = tags
+    if as_type == "generation":
+        kwargs["as_type"] = "generation"
     return _langfuse_observe(**kwargs)
 
 
@@ -35,19 +36,7 @@ def trace_production(
     session_id: str | None = None,
     user_id: str | None = None,
 ) -> Any:
-    if not _LANGFUSE_AVAILABLE:
-        from contextlib import nullcontext
-        return nullcontext()
-
-    from langfuse import propagate_attributes
-
-    attrs: dict[str, Any] = {}
-    if session_id:
-        attrs["session_id"] = session_id
-    if user_id:
-        attrs["user_id"] = user_id
-    attrs["metadata"] = {"production_id": production_id}
-    return propagate_attributes(**attrs)
+    return nullcontext()
 
 
 def flush() -> None:

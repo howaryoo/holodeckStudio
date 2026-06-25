@@ -33,7 +33,7 @@ services:
       retries: 5
 
   langfuse:
-    image: langfuse/langfuse:latest
+    image: langfuse/langfuse:2
     ports:
       - "3000:3000"
     environment:
@@ -41,6 +41,15 @@ services:
       NEXTAUTH_SECRET: dev-secret-change-in-production
       SALT: dev-salt-change-in-production
       NEXTAUTH_URL: http://localhost:3000
+      LANGFUSE_INIT_ORG_ID: holodeck-org
+      LANGFUSE_INIT_ORG_NAME: HolodeckStudio
+      LANGFUSE_INIT_PROJECT_ID: holodeck-project
+      LANGFUSE_INIT_PROJECT_NAME: holodeck
+      LANGFUSE_INIT_PROJECT_PUBLIC_KEY: pk-lf-7b452978-93e7-4526-b952-98c6c5af8fbe
+      LANGFUSE_INIT_PROJECT_SECRET_KEY: sk-lf-08435fbc-8bbb-44d2-9955-5ab9fce59034
+      LANGFUSE_INIT_USER_EMAIL: elisilverstine@gmail.com
+      LANGFUSE_INIT_USER_NAME: eliz
+      LANGFUSE_INIT_USER_PASSWORD: holodeck123
     depends_on:
       postgres:
         condition: service_healthy
