@@ -666,6 +666,9 @@ def config_reset() -> None:
 cache_app = typer.Typer(help="Manage the production result cache")
 app.add_typer(cache_app, name="cache")
 
+from holodeck.cli.dialogue_eval import app as dialogue_eval_app  # noqa: E402
+app.add_typer(dialogue_eval_app, name="dialogue-eval")
+
 
 @cache_app.command("clear")
 def cache_clear() -> None:

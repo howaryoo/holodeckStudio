@@ -1,0 +1,15 @@
+{
+  "prompt_id": "friends-kitchen-001",
+  "user_prompt": "Rachel and Joey are talking about their Thursday night — Joey is working on a scene on his PC while Rachel cleans the washing machine",
+  "description": "Casual apartment scene: Joey distracted by acting prep, Rachel frustrated with domestic chores. Low-stakes comedy with strong Rachel/Joey dynamic.",
+  "expected_characters": ["RACHEL", "JOEY"],
+  "quality_notes": "Joey should be literal and food-focused; Rachel should escalate frustration comedically. Scene needs a small resolution beat where Joey's obliviousness defuses the tension.",
+  "dialogue": [
+    {"character": "RACHEL", "text": "Ugh, this machine is disgusting. Joey, how do you live like this?", "file": ""},
+    {"character": "JOEY", "text": "I don't live like anything, I'm working.", "file": ""},
+    {"character": "RACHEL", "text": "You're looking at a picture of a sandwich.", "file": ""},
+    {"character": "JOEY", "text": "It's called research. You wouldn't understand.", "file": ""},
+    {"character": "RACHEL", "text": "There is actual mould in here. Like, a civilization of mould.", "file": ""},
+    {"character": "JOEY", "text": "Yeah, I named them. The big one's Gerald.", "file": ""}
+  ]
+}
