@@ -1,0 +1,17 @@
+{
+  "prompt_id": "friends-comedy-001",
+  "user_prompt": "Joey and Chandler argue about the right way to eat a sandwich, escalating into absurd territory in their apartment",
+  "description": "High-comedy scene between Joey and Chandler — tests comedy_pacing and character_authenticity. Should demonstrate Joey's food obsession and Chandler's sarcastic deflection.",
+  "expected_characters": ["JOEY", "CHANDLER"],
+  "quality_notes": "Joey must be completely earnest about sandwich mechanics — this is life-or-death to him. Chandler should undercut every sincere moment with self-deprecating sarcasm. Scene needs escalating absurdity with a payoff punchline.",
+  "dialogue": [
+    {"character": "JOEY", "text": "Okay, you are eating that sandwich completely wrong.", "file": ""},
+    {"character": "CHANDLER", "text": "I'm eating it with my mouth. I feel like that's the correct method.", "file": ""},
+    {"character": "JOEY", "text": "You bit into the middle! The middle, Chandler! The structural integrity is gone!", "file": ""},
+    {"character": "CHANDLER", "text": "Could this BE any more of a sandwich emergency?", "file": ""},
+    {"character": "JOEY", "text": "You always do this! You make fun of things you don't understand. Sandwiches have rules.", "file": ""},
+    {"character": "CHANDLER", "text": "I went to college. I understand sandwiches. I'm just not sure sandwiches have a constitution.", "file": ""},
+    {"character": "JOEY", "text": "They have a constitution AND a bill of rights. Corner to corner, Chandler. Corner. To. Corner.", "file": ""},
+    {"character": "CHANDLER", "text": "I feel like I should have paid more attention in school.", "file": ""}
+  ]
+}

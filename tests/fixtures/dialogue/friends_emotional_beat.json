@@ -1,0 +1,17 @@
+{
+  "prompt_id": "friends-emotional-001",
+  "user_prompt": "Monica and Rachel have a heartfelt moment about growing up and moving on, in Monica and Chandler's apartment",
+  "description": "Sincere emotional scene between Monica and Rachel — tests ensemble_dynamics and narrative_arc. Should have warmth beneath the humour with a clear emotional resolution.",
+  "expected_characters": ["MONICA", "RACHEL"],
+  "quality_notes": "Monica should be nurturing but slightly competitive even in tenderness. Rachel should be emotionally open. Scene needs a clear beginning (tension), middle (vulnerability), and end (resolution/warmth).",
+  "dialogue": [
+    {"character": "RACHEL", "text": "I don't know, Mon. Sometimes I feel like everything is changing and I'm just… standing still.", "file": ""},
+    {"character": "MONICA", "text": "Okay, first of all, you moved to New York with nothing and built an entire career. That is not standing still.", "file": ""},
+    {"character": "RACHEL", "text": "I know, but you have Chandler, you have a home, you're going to have kids. I don't have any of that.", "file": ""},
+    {"character": "MONICA", "text": "Rach. You are the bravest person I know. And I say that as someone who once cooked for a Michelin inspector in a thunderstorm.", "file": ""},
+    {"character": "RACHEL", "text": "That's… weirdly specific, but thank you.", "file": ""},
+    {"character": "MONICA", "text": "Plus, if you settle down before me I will never forgive you. So you don't have the option.", "file": ""},
+    {"character": "RACHEL", "text": "There she is. I was wondering when competitive Monica would show up.", "file": ""},
+    {"character": "MONICA", "text": "She never left. She just gave you a hug first.", "file": ""}
+  ]
+}
