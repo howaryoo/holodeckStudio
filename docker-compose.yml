@@ -1,0 +1,59 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: holodeck
+      POSTGRES_USER: holodeck
+      POSTGRES_PASSWORD: holodeck
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U holodeck"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  langfuse:
+    image: langfuse/langfuse:2
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://holodeck:holodeck@postgres:5432/langfuse
+      NEXTAUTH_SECRET: dev-secret-change-in-production
+      SALT: dev-salt-change-in-production
+      NEXTAUTH_URL: http://localhost:3000
+      LANGFUSE_INIT_ORG_ID: holodeck-org
+      LANGFUSE_INIT_ORG_NAME: HolodeckStudio
+      LANGFUSE_INIT_PROJECT_ID: holodeck-project
+      LANGFUSE_INIT_PROJECT_NAME: holodeck
+      LANGFUSE_INIT_PROJECT_PUBLIC_KEY: pk-lf-7b452978-93e7-4526-b952-98c6c5af8fbe
+      LANGFUSE_INIT_PROJECT_SECRET_KEY: sk-lf-08435fbc-8bbb-44d2-9955-5ab9fce59034
+      LANGFUSE_INIT_USER_EMAIL: elisilverstine@gmail.com
+      LANGFUSE_INIT_USER_NAME: eliz
+      LANGFUSE_INIT_USER_PASSWORD: holodeck123
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  minio_data:

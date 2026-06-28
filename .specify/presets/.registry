@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0",
+  "presets": {
+    "agentic-sdlc": {
+      "version": "1.0.4",
+      "source": "local",
+      "manifest_hash": "sha256:66b6cebabc2c1cfd2fb5b2bc1e7a02d8eb9eb557d9e395fd2a119fede29c3c77",
+      "enabled": true,
+      "priority": 10,
+      "registered_commands": {
+        "opencode": [
+          "spec.specify",
+          "spec.plan",
+          "spec.clarify",
+          "spec.tasks",
+          "spec.checklist",
+          "spec.analyze",
+          "spec.implement",
+          "spec.constitution"
+        ]
+      },
+      "registered_skills": [],
+      "installed_at": "2026-06-07T16:22:53.432010+00:00"
+    }
+  }
+}
