@@ -74,13 +74,25 @@ Return ONLY the JSON object. No markdown, no preamble.
 
 
 def _extract_json(content: str) -> dict[str, Any]:
+    # Strip markdown code fences if present
+    content = re.sub(r"```(?:json)?\s*", "", content).strip()
     match = re.search(r"\{.*\}", content, re.DOTALL)
     if not match:
         raise ValueError(f"Failed to parse PhraseJudge response — no JSON found: {content[:200]!r}")
+    raw = match.group()
     try:
-        return json.loads(match.group())  # type: ignore[no-any-return]
-    except json.JSONDecodeError as exc:
-        raise ValueError(f"Failed to parse PhraseJudge response — invalid JSON: {exc}") from exc
+        return json.loads(raw)  # type: ignore[no-any-return]
+    except json.JSONDecodeError:
+        # Replace smart quotes and other common LLM response quirks
+        cleaned = raw.replace("‘", "'").replace("’", "'")
+        cleaned = cleaned.replace("“", '"').replace("”", '"')
+        try:
+            return json.loads(cleaned)  # type: ignore[no-any-return]
+        except json.JSONDecodeError as exc:
+            raise ValueError(
+                f"Failed to parse PhraseJudge response — invalid JSON: {exc}\n"
+                f"Raw content: {raw[:300]!r}"
+            ) from exc
 
 
 class PhraseJudge:
@@ -95,6 +107,7 @@ class PhraseJudge:
                 name="PhraseJudge",
                 role="Score dialogue lines for character authenticity, naturalness, and comedy.",
                 instructions=[_SYSTEM_PROMPT],
+                structured_outputs=True,
             )
             if self._model is not None:
                 kwargs["model"] = self._model
@@ -119,14 +132,23 @@ class PhraseJudge:
         if is_known:
             prompt = f'Character: {char_upper}\nLine: "{text}"'
             response = self._get_agent().run(prompt)
-            raw = _extract_json(str(response.content))
-            return LinePhraseScore(
-                character=character,
-                text=text,
-                character_authenticity=DimensionResult(**raw["character_authenticity"]),
-                dialogue_naturalness=DimensionResult(**raw["dialogue_naturalness"]),
-                comedy_contribution=DimensionResult(**raw["comedy_contribution"]),
-            )
+            try:
+                raw = _extract_json(str(response.content))
+                return LinePhraseScore(
+                    character=character,
+                    text=text,
+                    character_authenticity=DimensionResult(**raw["character_authenticity"]),
+                    dialogue_naturalness=DimensionResult(**raw["dialogue_naturalness"]),
+                    comedy_contribution=DimensionResult(**raw["comedy_contribution"]),
+                )
+            except (ValueError, KeyError):
+                fallback = DimensionResult(score=5, reasoning="parse error — could not score")
+                return LinePhraseScore(
+                    character=character, text=text,
+                    character_authenticity=fallback,
+                    dialogue_naturalness=fallback,
+                    comedy_contribution=fallback,
+                )
         else:
             prompt = (
                 f'Character: {char_upper} (not a main Friends character — skip authenticity)\n'
@@ -134,14 +156,25 @@ class PhraseJudge:
                 f'Return JSON with only dialogue_naturalness and comedy_contribution keys.'
             )
             response = self._get_agent().run(prompt)
-            raw = _extract_json(str(response.content))
-            return LinePhraseScore(
-                character=character,
-                text=text,
-                character_authenticity=DimensionResult(
-                    score=0,
-                    reasoning="unknown character — authenticity not scored",
-                ),
-                dialogue_naturalness=DimensionResult(**raw["dialogue_naturalness"]),
-                comedy_contribution=DimensionResult(**raw["comedy_contribution"]),
-            )
+            try:
+                raw = _extract_json(str(response.content))
+                return LinePhraseScore(
+                    character=character,
+                    text=text,
+                    character_authenticity=DimensionResult(
+                        score=0,
+                        reasoning="unknown character — authenticity not scored",
+                    ),
+                    dialogue_naturalness=DimensionResult(**raw["dialogue_naturalness"]),
+                    comedy_contribution=DimensionResult(**raw["comedy_contribution"]),
+                )
+            except (ValueError, KeyError):
+                fallback = DimensionResult(score=5, reasoning="parse error — could not score")
+                return LinePhraseScore(
+                    character=character, text=text,
+                    character_authenticity=DimensionResult(
+                        score=0, reasoning="unknown character — authenticity not scored"
+                    ),
+                    dialogue_naturalness=fallback,
+                    comedy_contribution=fallback,
+                )

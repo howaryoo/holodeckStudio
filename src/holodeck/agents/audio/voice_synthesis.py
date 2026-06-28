@@ -108,6 +108,12 @@ def _clean_text(text: str) -> str:
     return text
 
 
+def _strip_stage_directions(text: str) -> str:
+    """Remove parenthetical stage directions; return only spoken words."""
+    stripped = re.sub(r"\([^)]*\)", "", text)
+    return stripped.strip()
+
+
 def _find_center_characters(script: str) -> set[str]:
     chars: set[str] = set()
     for m in re.finditer(r"<center>([^<]+)</center>", script):
@@ -131,12 +137,26 @@ def _parse_dialogue_lines(script: str) -> list[tuple[str, str]]:
     lines: list[tuple[str, str]] = []
     center_chars = _find_center_characters(script)
 
-    center_pattern = re.compile(r"<center>([^<]+)</center>\s*\n\s*[>]?\s*(.+)", re.MULTILINE)
-    for m in center_pattern.finditer(script):
-        char = _clean_text(m.group(1))
-        dialogue = _clean_text(m.group(2))
-        if char and dialogue and len(dialogue) > 5:
-            lines.append((char, dialogue))
+    # Center-tag format: scan line-by-line so we can skip stage-direction-only lines
+    # and find the first spoken line after each <center>CHARACTER</center> heading.
+    script_lines = script.split("\n")
+    for idx, raw_line in enumerate(script_lines):
+        center_match = re.match(r"<center>([^<]+)</center>", raw_line.strip())
+        if not center_match:
+            continue
+        char = _clean_text(center_match.group(1))
+        # Look ahead through subsequent `>` lines; stop at blank line or new heading
+        for j in range(idx + 1, len(script_lines)):
+            candidate = script_lines[j].strip()
+            if not candidate:
+                break
+            if re.match(r"<center>", candidate):
+                break
+            if candidate.startswith(">"):
+                spoken = _strip_stage_directions(_clean_text(candidate))
+                if spoken and len(spoken) > 5:
+                    lines.append((char, spoken))
+                    break
 
     valid_chars = center_chars or _find_colon_characters(script, 5)
 
@@ -144,7 +164,7 @@ def _parse_dialogue_lines(script: str) -> list[tuple[str, str]]:
     colon_pattern = re.compile(colon_re, re.MULTILINE)
     for m in colon_pattern.finditer(script):
         char = _clean_text(m.group(1))
-        dialogue = _clean_text(m.group(2))
+        dialogue = _strip_stage_directions(_clean_text(m.group(2)))
         if char and dialogue and len(dialogue) > 5:
             if valid_chars and char.upper() not in valid_chars:
                 continue
@@ -254,6 +274,11 @@ class VoiceSynthesisAgent:
         tts_engine = ", ".join(sorted(engines_used)) if engines_used else "none"
         context["dialogue_audio_urls"] = audio_urls
         context["dialogue_audio_metadata"] = audio_metadata
+
+        metadata_path = os.path.join(media_dir, "dialogue_metadata.json")
+        with open(metadata_path, "w") as f:
+            import json as _json
+            _json.dump(audio_metadata, f, indent=2)
         return AgentOutput(
             content=f"Generated {len(audio_urls)} dialogue audio files using {tts_engine}.",
             metadata={
