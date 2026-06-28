@@ -79,7 +79,9 @@ def run_command(path: str = typer.Argument(..., help="Path to dialogue JSON file
         )
         raise typer.Exit(1)
 
-    runner = DialogueEvaluationRunner()
+    from holodeck.config.registry import model_for_agent
+    model = model_for_agent("dialogue_eval")
+    runner = DialogueEvaluationRunner(model=model)
     with console.status("Evaluating dialogue…"):
         line_scores, scene_score = runner.evaluate(dialogue)
 
@@ -106,7 +108,9 @@ def batch_command(
         console.print(f"[yellow]No JSON fixtures found in {fixtures_dir}[/yellow]")
         raise typer.Exit(0)
 
-    runner = DialogueEvaluationRunner()
+    from holodeck.config.registry import model_for_agent
+    model = model_for_agent("dialogue_eval")
+    runner = DialogueEvaluationRunner(model=model)
     table = Table(title="Dialogue Batch Evaluation", show_lines=True)
     table.add_column("Fixture", style="cyan")
     table.add_column("Overall", justify="center")

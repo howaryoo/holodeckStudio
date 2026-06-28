@@ -50,13 +50,24 @@ _FALLBACK_DIMENSION = DimensionResult(score=5, reasoning="Insufficient dialogue 
 
 
 def _extract_json(content: str) -> dict[str, Any]:
+    # Strip markdown code fences if present
+    content = re.sub(r"```(?:json)?\s*", "", content).strip()
     match = re.search(r"\{.*\}", content, re.DOTALL)
     if not match:
         raise ValueError(f"Failed to parse SceneJudge response — no JSON found: {content[:200]!r}")
+    raw = match.group()
     try:
-        return json.loads(match.group())  # type: ignore[no-any-return]
-    except json.JSONDecodeError as exc:
-        raise ValueError(f"Failed to parse SceneJudge response — invalid JSON: {exc}") from exc
+        return json.loads(raw)  # type: ignore[no-any-return]
+    except json.JSONDecodeError:
+        cleaned = raw.replace("'", "'").replace("'", "'")
+        cleaned = cleaned.replace(""", '"').replace(""", '"')
+        try:
+            return json.loads(cleaned)  # type: ignore[no-any-return]
+        except json.JSONDecodeError as exc:
+            raise ValueError(
+                f"Failed to parse SceneJudge response — invalid JSON: {exc}\n"
+                f"Raw content: {raw[:300]!r}"
+            ) from exc
 
 
 class SceneJudge:
