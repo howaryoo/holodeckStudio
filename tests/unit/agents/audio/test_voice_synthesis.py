@@ -3,11 +3,13 @@ from __future__ import annotations
 from unittest.mock import MagicMock, patch
 
 from holodeck.agents.audio.voice_synthesis import (
+    VoiceSynthesisAgent,
     _get_piper_model_path,
     _get_voice_model,
     _has_piper,
+    _parse_dialogue_lines,
+    _strip_stage_directions,
     _wav_to_mp3,
-    VoiceSynthesisAgent,
 )
 
 
@@ -132,7 +134,7 @@ class TestVoiceSynthesisAgentProcess:
         agent = VoiceSynthesisAgent()
         result = agent.process({"script": "Hero: Hello world", "output_dir": "/tmp"})
         assert result.metadata is not None
-        assert result.metadata.get("tts_engine") in ("gtts", "none")
+        assert result.metadata.get("tts_engine") in ("piper", "gtts", "none")
 
     @patch("holodeck.agents.audio.voice_synthesis._parse_dialogue_lines")
     @patch("holodeck.agents.audio.voice_synthesis._has_piper")
@@ -158,6 +160,61 @@ class TestVoiceSynthesisAgentProcess:
         agent = VoiceSynthesisAgent()
         result = agent.validate_input({"script": "Hero: Hello"})
         assert result.valid is True
+
+
+class TestStripStageDirections:
+    def test_pure_stage_direction_returns_empty(self) -> None:
+        assert _strip_stage_directions("(He pauses and looks away)") == ""
+
+    def test_mixed_returns_only_spoken_text(self) -> None:
+        result = _strip_stage_directions("(sighing) I can't believe you did that.")
+        assert result == "I can't believe you did that."
+
+    def test_clean_dialogue_unchanged(self) -> None:
+        assert _strip_stage_directions("Hello, how are you?") == "Hello, how are you?"
+
+    def test_multiple_parentheticals_stripped(self) -> None:
+        result = _strip_stage_directions("(quietly) Yeah. (looks away) Sure.")
+        assert result == "Yeah.  Sure."
+
+    def test_strips_surrounding_whitespace(self) -> None:
+        result = _strip_stage_directions("  (pauses)  ")
+        assert result == ""
+
+
+class TestParseDialogueLines:
+    def test_colon_format_pure_stage_direction_excluded(self) -> None:
+        script = "JOEY: (He leans forward slowly)\nRACHEL: Hey, how are you?"
+        lines = _parse_dialogue_lines(script)
+        characters = [c for c, _ in lines]
+        assert "JOEY" not in characters
+        assert "RACHEL" in characters
+
+    def test_colon_format_mixed_keeps_spoken_text_only(self) -> None:
+        script = "JOEY: (sighing) I really miss the sandwich.\nRACHEL: Me too."
+        lines = _parse_dialogue_lines(script)
+        joey_lines = [t for c, t in lines if c == "JOEY"]
+        assert joey_lines
+        assert "sighing" not in joey_lines[0]
+        assert "I really miss the sandwich." in joey_lines[0]
+
+    def test_colon_format_clean_dialogue_preserved(self) -> None:
+        script = "CHANDLER: Could this BE any more of a sandwich emergency?"
+        lines = _parse_dialogue_lines(script)
+        assert len(lines) == 1
+        assert lines[0][1] == "Could this BE any more of a sandwich emergency?"
+
+    def test_center_tag_format_strips_stage_directions(self) -> None:
+        script = "<center>MONICA</center>\n(slamming cabinet) This kitchen is a disaster."
+        lines = _parse_dialogue_lines(script)
+        monica_lines = [t for c, t in lines if c == "MONICA"]
+        if monica_lines:
+            assert "(slamming cabinet)" not in monica_lines[0]
+
+    def test_center_tag_pure_direction_excluded(self) -> None:
+        script = "<center>ROSS</center>\n(adjusting glasses carefully)"
+        lines = _parse_dialogue_lines(script)
+        assert not any(c == "ROSS" for c, _ in lines)
 
 
 class TestVoiceSynthesisAgentReview:

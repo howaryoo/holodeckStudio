@@ -103,6 +103,29 @@ class Settings(BaseSettings):
         description="Timeout before auto-escalation in supervised mode",
     )
 
+    # ElevenLabs Voice Cloning
+    elevenlabs_api_key: str = Field(default="", description="ElevenLabs API key")
+    elevenlabs_voice_model: str = Field(
+        default="eleven_monolingual_v1",
+        description="ElevenLabs TTS model identifier",
+    )
+    elevenlabs_voice_stability: float = Field(
+        default=0.5,
+        ge=0.0,
+        le=1.0,
+        description="Voice stability [0.0–1.0]; higher = more consistent delivery",
+    )
+    elevenlabs_similarity_boost: float = Field(
+        default=0.75,
+        ge=0.0,
+        le=1.0,
+        description="Similarity to original voice [0.0–1.0]; higher = closer clone",
+    )
+    elevenlabs_use_speaker_boost: bool = Field(
+        default=False,
+        description="Enable ElevenLabs speaker boost for audio quality enhancement",
+    )
+
     def get_model_for_agent(self, agent_name: str) -> str:
         override = getattr(self, f"holodeck_model_{agent_name}", "")
         return override if override else self.holodeck_default_model

@@ -33,7 +33,12 @@ def _validate_prompt(prompt: str) -> tuple[bool, str]:
 
 
 def _display_media(result: PipelineResult, console: Console) -> None:
-    if result.dialogue_audio_urls:
+    if result.dialogue_audio_metadata:
+        console.print("\n[bold]=== DIALOGUE AUDIO ===[/bold]")
+        for entry in result.dialogue_audio_metadata:
+            console.print(f"  [{entry['character']}] {entry['text']}")
+            console.print(f"    → {entry['file']}")
+    elif result.dialogue_audio_urls:
         console.print("\n[bold]=== DIALOGUE AUDIO ===[/bold]")
         for url in result.dialogue_audio_urls:
             console.print(f"  {url}")
@@ -71,9 +76,11 @@ def produce(
         from holodeck.cache import PipelineCache
         cached = PipelineCache().get(prompt, bible, mode)
         if cached is not None:
+            import os as _os
             console.print("[yellow]Returning cached result. Use --no-cache to force fresh LLM calls.[/yellow]")
             console.print("\n[green]Production (cached) complete![/green]")
             console.print(f"  Production ID: {cached.get('production_id', '?')}")
+            console.print(f"  Output folder: {_os.path.abspath(output)}")
             console.print("\n[bold]=== SCRIPT ===[/bold]")
             console.print(cached.get("script", "")[:2000])
             if len(cached.get("script", "")) > 2000:
@@ -97,7 +104,12 @@ def produce(
             if cached.get("audience_report"):
                 console.print("\n[bold]=== AUDIENCE SIMULATION ===[/bold]")
                 console.print(cached["audience_report"][:500])
-            if cached.get("dialogue_audio_urls"):
+            if cached.get("dialogue_audio_metadata"):
+                console.print("\n[bold]=== DIALOGUE AUDIO ===[/bold]")
+                for entry in cached["dialogue_audio_metadata"]:
+                    console.print(f"  [{entry['character']}] {entry['text']}")
+                    console.print(f"    → {entry['file']}")
+            elif cached.get("dialogue_audio_urls"):
                 console.print("\n[bold]=== DIALOGUE AUDIO ===[/bold]")
                 for url in cached["dialogue_audio_urls"]:
                     console.print(f"  {url}")
@@ -129,7 +141,9 @@ def produce(
             use_cache=not no_cache,
             budget=budget,
         ))
+        import os as _os
         console.print(f"\n[green]Production {result.production_id} complete![/green]")
+        console.print(f"  Output folder: {_os.path.abspath(output)}")
         console.print("\n[bold]=== SCRIPT ===[/bold]")
         console.print(result.script[:2000])
         if len(result.script) > 2000:
@@ -475,6 +489,143 @@ def bible_search(
     console.print(table)
 
 
+voice_sample_app = typer.Typer(help="Manage actor voice samples for voice cloning")
+bible_app.add_typer(voice_sample_app, name="voice-sample")
+
+
+@voice_sample_app.command("add")
+def voice_sample_add(
+    bible: str = typer.Option(..., "--bible", help="Bible ID"),
+    character: str = typer.Option(..., "--character", help="Character display name (e.g. 'Rachel Green')"),
+    file: str = typer.Option(..., "--file", help="Path to audio file (MP3, WAV, OGG, FLAC)"),
+    description: str | None = typer.Option(None, "--description", help="Optional notes about this sample"),
+) -> None:
+    import asyncio
+    from pathlib import Path
+    from uuid import UUID, uuid4
+    from holodeck.storage.voice_sample_store import validate_audio_file, upload_voice_sample
+    from holodeck.storage.postgres import ActorVoiceSample, ActorVoiceSampleRepository
+    from holodeck.config.settings import Settings
+
+    if not Path(file).exists():
+        console.print(f"[red]Error:[/red] File not found: {file}")
+        raise typer.Exit(code=1)
+
+    try:
+        duration, fmt = validate_audio_file(file)
+    except ValueError as exc:
+        console.print(f"[red]Error:[/red] {exc}")
+        raise typer.Exit(code=1)
+
+    console.print(f"Validated: {fmt.upper()}, {duration:.1f}s")
+
+    try:
+        bible_id = UUID(bible)
+    except ValueError:
+        console.print(f"[red]Error:[/red] Invalid bible ID: {bible}")
+        raise typer.Exit(code=1)
+
+    async def _run() -> None:
+        settings = Settings()
+        repo = ActorVoiceSampleRepository()
+        await repo.deactivate(bible_id, character)
+        object_key = await upload_voice_sample(file, bible_id, character, settings)
+        sample = ActorVoiceSample(
+            id=uuid4(),
+            bible_id=bible_id,
+            character_name=character,
+            sample_file_path=object_key,
+            source_format=fmt,
+            duration_seconds=duration,
+            description=description,
+            is_active=True,
+        )
+        await repo.create(sample)
+        console.print(f"[green]Added voice sample:[/green] {character}")
+        console.print(f"  Sample ID: {sample.id}")
+        console.print(f"  Duration:  {duration:.1f}s ({fmt.upper()})")
+        console.print(f"  MinIO key: {object_key}")
+
+    try:
+        asyncio.run(_run())
+    except Exception as exc:
+        console.print(f"[red]Error:[/red] {exc}")
+        raise typer.Exit(code=1)
+
+
+@voice_sample_app.command("list")
+def voice_sample_list(
+    bible: str = typer.Option(..., "--bible", help="Bible ID"),
+) -> None:
+    import asyncio
+    from uuid import UUID
+    from holodeck.storage.postgres import ActorVoiceSampleRepository
+
+    try:
+        bible_id = UUID(bible)
+    except ValueError:
+        console.print(f"[red]Error:[/red] Invalid bible ID: {bible}")
+        raise typer.Exit(code=1)
+
+    async def _run() -> None:
+        repo = ActorVoiceSampleRepository()
+        samples = await repo.list_by_bible(bible_id)
+        if not samples:
+            console.print("[yellow]No voice samples found for this bible.[/yellow]")
+            return
+        table = Table(title=f"Voice samples — bible {bible}")
+        table.add_column("Character", style="cyan")
+        table.add_column("Format", style="magenta")
+        table.add_column("Duration", style="white")
+        table.add_column("Active", style="white")
+        table.add_column("Voice ID", style="dim")
+        table.add_column("Uploaded", style="dim")
+        for s in samples:
+            table.add_row(
+                s.character_name,
+                s.source_format.upper(),
+                f"{s.duration_seconds:.0f}s",
+                "[green]✓[/green]" if s.is_active else "[dim]—[/dim]",
+                s.elevenlabs_voice_id or "—",
+                s.upload_date.strftime("%Y-%m-%d") if s.upload_date else "—",
+            )
+        console.print(table)
+
+    try:
+        asyncio.run(_run())
+    except Exception as exc:
+        console.print(f"[red]Error:[/red] {exc}")
+        raise typer.Exit(code=1)
+
+
+@voice_sample_app.command("disable")
+def voice_sample_disable(
+    bible: str = typer.Option(..., "--bible", help="Bible ID"),
+    character: str = typer.Option(..., "--character", help="Character display name"),
+) -> None:
+    import asyncio
+    from uuid import UUID
+    from holodeck.storage.postgres import ActorVoiceSampleRepository
+
+    try:
+        bible_id = UUID(bible)
+    except ValueError:
+        console.print(f"[red]Error:[/red] Invalid bible ID: {bible}")
+        raise typer.Exit(code=1)
+
+    async def _run() -> None:
+        repo = ActorVoiceSampleRepository()
+        await repo.deactivate(bible_id, character)
+        console.print(f"[green]Disabled voice sample for:[/green] {character}")
+        console.print("  Production will fall back to Piper TTS for this character.")
+
+    try:
+        asyncio.run(_run())
+    except Exception as exc:
+        console.print(f"[red]Error:[/red] {exc}")
+        raise typer.Exit(code=1)
+
+
 config_app = typer.Typer(help="Manage configuration")
 app.add_typer(config_app, name="config")
 
@@ -514,6 +665,9 @@ def config_reset() -> None:
 
 cache_app = typer.Typer(help="Manage the production result cache")
 app.add_typer(cache_app, name="cache")
+
+from holodeck.cli.dialogue_eval import app as dialogue_eval_app  # noqa: E402
+app.add_typer(dialogue_eval_app, name="dialogue-eval")
 
 
 @cache_app.command("clear")
