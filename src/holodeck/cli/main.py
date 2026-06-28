@@ -626,6 +626,48 @@ def voice_sample_disable(
         raise typer.Exit(code=1)
 
 
+@voice_sample_app.command("link")
+def voice_sample_link(
+    bible: str = typer.Option(..., "--bible", help="Bible ID"),
+    character: str = typer.Option(..., "--character", help="Character display name (e.g. 'Rachel Green')"),
+    voice_id: str = typer.Option(..., "--voice-id", help="ElevenLabs voice ID from their site"),
+) -> None:
+    """Register an existing ElevenLabs voice ID without uploading audio."""
+    import asyncio
+    from uuid import UUID, uuid4
+    from holodeck.storage.postgres import ActorVoiceSample, ActorVoiceSampleRepository
+
+    try:
+        bible_id = UUID(bible)
+    except ValueError:
+        console.print(f"[red]Error:[/red] Invalid bible ID: {bible}")
+        raise typer.Exit(code=1)
+
+    async def _run() -> None:
+        repo = ActorVoiceSampleRepository()
+        await repo.deactivate(bible_id, character)
+        sample = ActorVoiceSample(
+            id=uuid4(),
+            bible_id=bible_id,
+            character_name=character,
+            sample_file_path="elevenlabs://direct",
+            source_format="mp3",
+            duration_seconds=30.0,
+            elevenlabs_voice_id=voice_id,
+            description="Linked from ElevenLabs site",
+            is_active=True,
+        )
+        await repo.create(sample)
+        console.print(f"[green]Linked ElevenLabs voice:[/green] {character}")
+        console.print(f"  Voice ID: {voice_id}")
+
+    try:
+        asyncio.run(_run())
+    except Exception as exc:
+        console.print(f"[red]Error:[/red] {exc}")
+        raise typer.Exit(code=1)
+
+
 config_app = typer.Typer(help="Manage configuration")
 app.add_typer(config_app, name="config")
 
