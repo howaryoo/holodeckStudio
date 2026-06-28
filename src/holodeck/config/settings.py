@@ -126,6 +126,33 @@ class Settings(BaseSettings):
         description="Enable ElevenLabs speaker boost for audio quality enhancement",
     )
 
+    # Image Generation
+    image_provider: str = Field(
+        default="svgonly",
+        description="Image provider: replicate, stability, huggingface, svgonly",
+    )
+    replicate_api_key: str = Field(
+        default="", description="Replicate API token"
+    )
+    replicate_model: str = Field(
+        default="black-forest-labs/flux-2-pro",
+        description="Replicate model ID",
+    )
+    image_gen_width: int = Field(
+        default=1280, ge=256, le=2048, description="Generated image width",
+    )
+    image_gen_height: int = Field(
+        default=720, ge=256, le=2048, description="Generated image height",
+    )
+    image_gen_style: str = Field(
+        default="illustrated",
+        description="Style prompt: illustrated, cinematic, photorealistic, animated",
+    )
+    ai_budget_limit: int = Field(
+        default=25, ge=0,
+        description="Max AI API calls per production run (0 = unlimited)",
+    )
+
     def get_model_for_agent(self, agent_name: str) -> str:
         override = getattr(self, f"holodeck_model_{agent_name}", "")
         return override if override else self.holodeck_default_model

@@ -11,6 +11,7 @@ from holodeck.observability import observe
 
 if TYPE_CHECKING:
     from agno.models.base import Model
+
     from holodeck.storage.media_storage import MediaStorage
 
 
@@ -215,12 +216,8 @@ class VideoAssemblerAgent:
         VIDEO_W = 640 if preview else 1280
         VIDEO_H = 360 if preview else 720
 
-        svg_frames = re.split(r"\n---NEXT FRAME---\n", frame_svgs)
-        svg_frames = [s for s in svg_frames if "<svg" in s]
-
-        if not svg_frames:
-            context["video_url"] = ""
-            return AgentOutput(content="No frames. No video generated.", metadata={"video_url": ""})
+        ai_frames: dict[int, str] = context.get("ai_composited_frames", {})
+        use_ai = bool(ai_frames)
 
         import tempfile
         from pathlib import Path
@@ -228,20 +225,38 @@ class VideoAssemblerAgent:
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
             png_files = []
-            max_frames = min(len(svg_frames), 50)
-            for i, svg in enumerate(svg_frames[:max_frames]):
-                png_path = str(tmp_path / f"frame_{i:04d}.png")
-                proc = subprocess.run(
-                    ["convert", "svg:-", "-background", "white", "-flatten", "-resize", f"{VIDEO_W}x{VIDEO_H}!", png_path],
-                    input=svg.encode("utf-8"),
-                    capture_output=True,
-                )
-                if proc.returncode == 0:
-                    png_files.append(png_path)
+
+            if use_ai:
+                sorted_idx = sorted(ai_frames.keys())
+                for i, idx in enumerate(sorted_idx):
+                    png_path = str(tmp_path / f"frame_{i:04d}.png")
+                    try:
+                        import shutil
+                        shutil.copy2(ai_frames[idx], png_path)
+                        png_files.append(png_path)
+                    except OSError:
+                        pass
+            else:
+                svg_frames = re.split(r"\n---NEXT FRAME---\n", frame_svgs)
+                svg_frames = [s for s in svg_frames if "<svg" in s]
+                if not svg_frames:
+                    context["video_url"] = ""
+                    return AgentOutput(content="No frames. No video generated.", metadata={"video_url": ""})
+
+                max_frames = min(len(svg_frames), 50)
+                for i, svg in enumerate(svg_frames[:max_frames]):
+                    png_path = str(tmp_path / f"frame_{i:04d}.png")
+                    proc = subprocess.run(
+                        ["convert", "svg:-", "-background", "white", "-flatten", "-resize", f"{VIDEO_W}x{VIDEO_H}!", png_path],
+                        input=svg.encode("utf-8"),
+                        capture_output=True,
+                    )
+                    if proc.returncode == 0:
+                        png_files.append(png_path)
 
             if not png_files:
                 context["video_url"] = ""
-                return AgentOutput(content="ImageMagick conversion failed.", metadata={"video_url": ""})
+                return AgentOutput(content="No frames available for assembly.", metadata={"video_url": ""})
 
             import json as _json
             total_audio_dur = 0.0
@@ -423,32 +438,44 @@ class VideoAssemblerAgent:
                     context["video_url"] = ""
                     return AgentOutput(content="Scene render failed.", metadata={"video_url": ""})
 
-            local_audio = []
-            for url in audio_urls:
-                if os.path.exists(url):
-                    local_audio.append(url)
-
             final_video_name = f"episode_{ep_id}.mp4" if ep_id != "unknown" else "final.mp4"
             final_video = os.path.join(media_dir, final_video_name)
 
-            if local_audio:
-                inputs = ["-i", raw_video]
-                for a in local_audio:
-                    inputs.extend(["-i", a])
-                audio_labels = "".join(f"[{i+1}:a]" for i in range(len(local_audio)))
-                concat_filter = f"{audio_labels}concat=n={len(local_audio)}:v=0:a=1[aout]"
+            mixed_audio = context.get("mixed_audio_path")
+            if mixed_audio and os.path.exists(mixed_audio):
                 cmd2 = [
-                    "ffmpeg", "-y", *inputs,
-                    "-filter_complex", concat_filter,
-                    "-map", "0:v", "-map", "[aout]",
+                    "ffmpeg", "-y",
+                    "-i", raw_video,
+                    "-i", mixed_audio,
+                    "-map", "0:v", "-map", "1:a",
                     "-c:v", "copy", "-c:a", "aac",
                     "-b:a", "128k", "-shortest",
                     final_video,
                 ]
                 subprocess.run(cmd2, capture_output=True)
             else:
-                import shutil
-                shutil.copy2(raw_video, final_video)
+                local_audio = []
+                for url in (audio_urls or []):
+                    if os.path.exists(url):
+                        local_audio.append(url)
+                if local_audio:
+                    inputs = ["-i", raw_video]
+                    for a in local_audio:
+                        inputs.extend(["-i", a])
+                    audio_labels = "".join(f"[{i+1}:a]" for i in range(len(local_audio)))
+                    concat_filter = f"{audio_labels}concat=n={len(local_audio)}:v=0:a=1[aout]"
+                    cmd2 = [
+                        "ffmpeg", "-y", *inputs,
+                        "-filter_complex", concat_filter,
+                        "-map", "0:v", "-map", "[aout]",
+                        "-c:v", "copy", "-c:a", "aac",
+                        "-b:a", "128k", "-shortest",
+                        final_video,
+                    ]
+                    subprocess.run(cmd2, capture_output=True)
+                else:
+                    import shutil
+                    shutil.copy2(raw_video, final_video)
 
             video_url = ""
             if os.path.exists(final_video):
@@ -480,6 +507,7 @@ class VideoAssemblerAgent:
                 "smooth_zoom": smooth_zoom,
                 "color_grade_applied": color_grade_applied,
                 "camera_motion_type": camera_motion_type,
+                "enhancement_type": "ai_composited" if use_ai else "svg",
             },
         )
 

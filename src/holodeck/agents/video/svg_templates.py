@@ -138,11 +138,11 @@ def character_silhouette(
     palette: dict[str, str] | None = None,
 ) -> str:
     from holodeck.agents.video.character_renderer import (
-        render_face,
-        render_clothing,
-        render_hair,
-        render_accessory,
         _pick_palette,
+        render_accessory,
+        render_clothing,
+        render_face,
+        render_hair,
     )
 
     if palette is None:

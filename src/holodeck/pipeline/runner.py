@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import logging
+import os
+import subprocess
 from dataclasses import dataclass, field
 from uuid import uuid4
 
@@ -10,7 +12,7 @@ logger = logging.getLogger(__name__)
 from holodeck.config.settings import Settings
 from holodeck.pipeline.events import AsyncioEventBus
 from holodeck.pipeline.orchestrator import PipelineOrchestrator
-from holodeck.pipeline.stages import StageType, ProductionStatus
+from holodeck.pipeline.stages import ProductionStatus, StageType
 
 
 @dataclass
@@ -81,10 +83,10 @@ class ProductionPipeline:
         self.producer = ProducerAgent(
             model=model_for_agent("critic", self.settings)
         )
-        from holodeck.agents.design.production_designer import ProductionDesignerAgent
-        from holodeck.agents.directing.director import DirectorAgent
         from holodeck.agents.design.character_designer import CharacterDesignerAgent
         from holodeck.agents.design.environment_designer import EnvironmentDesignerAgent
+        from holodeck.agents.design.production_designer import ProductionDesignerAgent
+        from holodeck.agents.directing.director import DirectorAgent
         from holodeck.agents.directing.storyboard import StoryboardAgent
         self.production_designer = ProductionDesignerAgent(
             model=model_for_agent("critic", self.settings)
@@ -113,8 +115,8 @@ class ProductionPipeline:
         self.voice_director = VoiceDirectorAgent(
             model=model_for_agent("critic", self.settings)
         )
-        from holodeck.agents.production.asset_generation import AssetGenerationAgent
         from holodeck.agents.production.animation import AnimationAgent
+        from holodeck.agents.production.asset_generation import AssetGenerationAgent
         from holodeck.agents.production.rendering import RenderingAgent
         from holodeck.agents.review.qa import QAAgent
         self.asset_generator = AssetGenerationAgent(
@@ -161,10 +163,14 @@ class ProductionPipeline:
         use_cache: bool = True,
         budget: float | None = None,
         script_only: bool = False,
+        preview: bool = False,
+        no_voice: bool = False,
+        no_sfx: bool = False,
     ) -> PipelineResult:
-        from holodeck.memory.production import ProductionMemory
-        from holodeck.memory.episode import EpisodeMemory
         import time as _time
+
+        from holodeck.memory.episode import EpisodeMemory
+        from holodeck.memory.production import ProductionMemory
 
         if use_cache:
             cached = self.cache.get(prompt, bible, mode)
@@ -174,6 +180,13 @@ class ProductionPipeline:
         production_id = uuid4()
         episode_id = uuid4()
         context: dict = {"theme_prompt": prompt, "use_cache": use_cache, "mode": mode, "production_id": production_id, "episode_id": episode_id, "output_dir": output}
+        settings = Settings()
+        context["image_provider"] = settings.image_provider
+        context["ai_budget_used"] = 0
+        context["ai_character_assets"] = {}
+        context["ai_background_assets"] = {}
+        context["ai_composited_frames"] = {}
+        context["preview"] = preview
         if budget is not None:
             context["budget_usd"] = budget
             self.producer.set_budget(budget)
@@ -604,23 +617,91 @@ class ProductionPipeline:
                 production_id, episode_id, stage_id, StageType.REVIEW, "audience_simulation"
             )
 
-            # Stage 20: Voice Synthesis — gTTS dialogue audio
-            stage_id_voice = uuid4()
-            await self.orchestrator.start_stage(
-                production_id, episode_id, stage_id_voice, StageType.AUDIO, "voice_synthesis"
-            )
-            t0 = _time.monotonic()
-            self.voice_synth.validate_input(context)
-            voice_output = self.voice_synth.process(context)
-            voice_review = self.voice_synth.review_output(voice_output)
-            cost_info = self._estimate_cost(voice_output.content, context.get("script", ""))
-            duration = _time.monotonic() - t0
-            prod_memory.add_agent_execution({"agent_role": "voice_synthesis", "stage": "audio", "approved": voice_review.approved, "score": voice_review.score, **cost_info})
-            self.tracker.record_cost(production_id, "audio", "voice_synthesis", cost_info["input_tokens"], cost_info["output_tokens"], cost_info["cost_usd"])
-            self.tracker.record_agent_performance("voice_synthesis", "audio", voice_review.score, duration)
-            await self.orchestrator.complete_stage(
-                production_id, episode_id, stage_id_voice, StageType.AUDIO, "voice_synthesis"
-            )
+            if not no_voice:
+                # Stage 20: Voice Synthesis — dialogue audio
+                stage_id_voice = uuid4()
+                await self.orchestrator.start_stage(
+                    production_id, episode_id, stage_id_voice, StageType.AUDIO, "voice_synthesis"
+                )
+                t0 = _time.monotonic()
+                self.voice_synth.validate_input(context)
+                voice_output = self.voice_synth.process(context)
+                voice_review = self.voice_synth.review_output(voice_output)
+                cost_info = self._estimate_cost(voice_output.content, context.get("script", ""))
+                duration = _time.monotonic() - t0
+                prod_memory.add_agent_execution({"agent_role": "voice_synthesis", "stage": "audio", "approved": voice_review.approved, "score": voice_review.score, **cost_info})
+                self.tracker.record_cost(production_id, "audio", "voice_synthesis", cost_info["input_tokens"], cost_info["output_tokens"], cost_info["cost_usd"])
+                self.tracker.record_agent_performance("voice_synthesis", "audio", voice_review.score, duration)
+                await self.orchestrator.complete_stage(
+                    production_id, episode_id, stage_id_voice, StageType.AUDIO, "voice_synthesis"
+                )
+
+            if not no_sfx:
+                stage_id_sfx = uuid4()
+                await self.orchestrator.start_stage(
+                    production_id, episode_id, stage_id_sfx, StageType.AUDIO, "sfx_mixer"
+                )
+                t0 = _time.monotonic()
+                from holodeck.agents.audio.audio_mixer import AudioMixer
+                from holodeck.agents.audio.sfx_library import SFXRegistry
+                from holodeck.agents.audio.sfx_matcher import SFXMatcher
+                registry = SFXRegistry()
+                matcher = SFXMatcher(registry)
+                mixer = AudioMixer()
+                sound_design = context.get("sound_design", "")
+                if sound_design:
+                    scene_cues = matcher.parse_sound_design(sound_design)
+                    matched_scenes = matcher.match_cues(scene_cues)
+                    output_dir = context.get("output_dir", "output")
+                    os.makedirs(output_dir, exist_ok=True)
+                    dialogue_urls = context.get("dialogue_audio_urls") or []
+                    if isinstance(dialogue_urls, list) and len(dialogue_urls) > 0:
+                        full_dialogue = os.path.join(output_dir, "full_dialogue.mp3")
+                        mixer.concat_scenes(dialogue_urls, full_dialogue)
+                    else:
+                        full_dialogue = ""
+                    dialogue_ok = full_dialogue and os.path.exists(full_dialogue)
+                    total_dur = mixer.get_duration(full_dialogue) if dialogue_ok else 0.0
+                    scene_mixes = []
+                    n_scenes = len(matched_scenes)
+                    for i, ms in enumerate(matched_scenes):
+                        if dialogue_ok and total_dur > 0:
+                            seg_dur = total_dur / max(n_scenes, 1)
+                            seg_start = i * seg_dur
+                            seg_dialogue = os.path.join(output_dir, f"scene_{ms.scene_number}_dialogue.mp3")
+                            subprocess.run(
+                                [mixer.ffmpeg_path, "-y", "-i", full_dialogue,
+                                 "-ss", str(seg_start), "-t", str(seg_dur), seg_dialogue],
+                                capture_output=True,
+                            )
+                            dia_path = seg_dialogue if os.path.exists(seg_dialogue) else ""
+                        else:
+                            dia_path = ""
+                        if not dia_path or not os.path.exists(dia_path):
+                            continue
+                        scene_out = os.path.join(output_dir, f"scene_{ms.scene_number}_mixed.mp3")
+                        result = mixer.mix_scene(
+                            dialogue_path=dia_path,
+                            ambience_path=ms.ambience_path if ms.ambience_path and os.path.exists(ms.ambience_path) else None,
+                            sfx_paths=ms.sfx_paths + ms.foley_paths,
+                            output_path=scene_out,
+                            scene_duration=seg_dur if dialogue_ok else 10.0,
+                        )
+                        if result:
+                            scene_mixes.append(result)
+                    if scene_mixes:
+                        full_audio = os.path.join(output_dir, "full_audio.mp3")
+                        mixed = mixer.concat_scenes(scene_mixes, full_audio)
+                        if mixed:
+                            context["mixed_audio_path"] = mixed
+                cost_info = self._estimate_cost("", "")
+                duration = _time.monotonic() - t0
+                prod_memory.add_agent_execution({"agent_role": "sfx_mixer", "stage": "audio", "approved": True, "score": 100, **cost_info})
+                self.tracker.record_cost(production_id, "audio", "sfx_mixer", cost_info["input_tokens"], cost_info["output_tokens"], cost_info["cost_usd"])
+                self.tracker.record_agent_performance("sfx_mixer", "audio", 100, duration)
+                await self.orchestrator.complete_stage(
+                    production_id, episode_id, stage_id_sfx, StageType.AUDIO, "sfx_mixer"
+                )
 
             # Stage 21: Frame Renderer — deterministic SVG frames
             stage_id_frames = uuid4()

@@ -43,7 +43,14 @@ class ElevenLabsProvider:
         raw_bible_id = context.get("bible_id")
         if raw_bible_id is None:
             return False
-        bible_id = UUID(str(raw_bible_id))
+        try:
+            bible_id = UUID(str(raw_bible_id))
+        except (ValueError, AttributeError):
+            logger.warning(
+                "ElevenLabsProvider: invalid bible_id '%s' — skipping voice clone",
+                raw_bible_id,
+            )
+            return False
 
         sample = await self._repo.get_active(bible_id, char_name)
         if sample is None:

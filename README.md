@@ -6,6 +6,121 @@ Created via [opencode](https://opencode.ai) × [Spec Kit](https://github.com/tik
 Codebase built iteratively from specs (`specs/` → plans → research → tasks → impl), all within opencode CLI.  
 [RTK (Rust Token Killer)](https://github.com/khunkin/rtk) for lean context management. [Caveman](https://opencode.ai) mode for ultra-terse agent communication.
 
+## Agentic Workflow
+
+```mermaid
+graph TD
+    subgraph Creative["Creative Development"]
+        SR[Showrunner] -->|theme prompt| HW[Head Writer]
+        HW -->|outline| SW[Staff Writer]
+        SW -->|script| CH[Canon Historian]
+        CH -->|canon report| CR[Critic]
+        CR -->|critique| PR[Producer]
+    end
+    
+    subgraph Design["Visual Design"]
+        PR -->|budget| PD[Production Designer]
+        PD -->|style guide| DR[Director]
+        DR -->|visual direction| CD[Character Designer]
+        CD -->|characters| ED[Environment Designer]
+        ED -->|environments| SB[Storyboard]
+    end
+    
+    subgraph Audio["Audio Production"]
+        SB -->|storyboard| CO[Composer]
+        CO -->|musical score| SD[Sound Designer]
+        SD -->|sound design| VD[Voice Director]
+        VD -->|voice direction| VS[Voice Synthesis]
+        VS -->|dialogue audio| SFX[SFX Mixer]
+    end
+    
+    subgraph Render["Media Assembly"]
+        SFX -->|mixed audio| AG[Asset Generation]
+        AG -->|assets| AN[Animation]
+        AN -->|animation| FR[Frame Renderer]
+        FR -->|frames| VA[Video Assembler]
+        VA -->|final video| QA[QA Agent]
+        QA -->|qa report| AU[Audience Simulation]
+    end
+    
+    AU -->|release| OUT[🎬 Final Output]
+```
+
+**Stage Flow:**
+
+| Phase | Stage | Agent | Output |
+|-------|-------|-------|--------|
+| 1 | concept | Showrunner | Theme breakdown, creative direction |
+| 2 | outline | Head Writer | Story outline, scene structure |
+| 3 | script | Staff Writer | Full script with dialogue |
+| 4 | review | Canon Historian | Canon compliance report |
+| 5 | review | Critic | Quality critique + score |
+| 6 | review | Producer | Budget report, greenlight |
+| 7 | asset_generation | Production Designer | Visual style guide |
+| 8 | storyboard | Director | Shot compositions, camera moves |
+| 9 | asset_generation | Character Designer | Character visual descriptions |
+| 10 | asset_generation | Environment Designer | Location/background designs |
+| 11 | storyboard | Storyboard | Frame-by-frame visual plan |
+| 12 | audio | Composer | Musical score suggestions |
+| 13 | audio | Sound Designer | Ambience + SFX cues per scene |
+| 14 | audio | Voice Director | Per-character voice direction |
+| 15 | audio | Voice Synthesis | Dialogue audio files (MP3) |
+| 16 | audio | SFX Mixer | Mixed audio (dialogue + ambience + SFX) |
+| 17 | asset_generation | Asset Generation | Prop + effect descriptions |
+| 18 | animation | Animation | Scene motion + timing |
+| 19 | render | Frame Renderer | SVG/AI-composited frames |
+| 20 | render | Video Assembler | Final video (MP4) |
+| 21 | review | QA Agent | Quality check report |
+| 22 | review | Audience Simulation | Audience reaction simulation |
+
+## Typical Output
+
+```bash
+$ uv run holodeck produce "A stranded crew discovers an ancient relay network that can fold space, \
+but using it attracts a predator species" --bible 9044edee --preview
+
+Starting production: A stranded crew discovers an ancient relay network...
+  Mode: autonomous
+  Output: ./output
+
+Production 4a7b2c1d complete!
+  Output folder: /home/user/projects/holodeckStudio/output
+
+=== SCRIPT ===
+INT. VOYAGER BRIDGE - DAY
+
+CAPTAIN KESSLER stands at the tactical station, studying an ancient alien console...
+
+=== CANON HISTORIAN REPORT ===
+Canon compliance: 94% - Alien relay technology consistent with established lore...
+
+=== CRITIC REVIEW ===
+Score: 87/100 - Strong character development, pacing improves in act 2...
+
+=== SOUND DESIGN ===
+SCENE 1: Bridge
+- AMBIENCE: Quiet hum of starship engines, bridge background
+- FOLEY: Footsteps on metal deck
+- SFX: Console activation beep, alert klaxon
+
+SCENE 2: Alien Relay Chamber  
+- AMBIENCE: Eerie subspace resonance, alien machinery hum
+- SFX: Relay activation surge, predator arrival warning
+
+=== DIALOGUE AUDIO ===
+  [CAPTAIN KESSLER] "We've found something incredible..."
+    → output/media/4a7b2c1d/dialogue_0000_CAPTAIN.mp3
+  [ENGINEER TORRES] "The energy signature... it's like nothing I've seen."
+    → output/media/4a7b2c1d/dialogue_0001_ENGINEER.mp3
+
+=== VIDEO ===
+  output/media/4a7b2c1d/episode_5e8f.mp4
+  15 frames generated (preview mode)
+  Smooth zoom: enabled
+  Color grade: noir
+  Enhancement: svg
+```
+
 ## Kubernetes Deployment (Colima)
 
 ## Prerequisites
@@ -104,15 +219,24 @@ holodeck bible search <bible-id> "relay"
 
 Bibles are stored in memory (process lifetime). Use `--bible <id>` with `produce` to inject entries as context for canon verification.
 
-### Producing a Script
+### Producing an Episode
 
 ```bash
 # Dry-run: validate prompt without LLM calls
 holodeck produce "A stranded crew discovers an ancient alien relay network" --dry-run
 
-# Full production: runs all 5 agents with LLM calls
+# Full production: runs all 22 agents with LLM calls
 holodeck produce "A stranded crew discovers an ancient relay network that can fold space, \
 but using it attracts a predator species" --bible <bible-id>
+
+# Preview mode: fast 640x360, 12fps, 15-frame cap (for rapid iteration)
+holodeck produce "A stranded crew..." --preview --bible <bible-id>
+
+# Silent video: skip voice synthesis (for debugging visuals)
+holodeck produce "A stranded crew..." --no-voice --preview
+
+# Dialogue-only audio: skip SFX mixing
+holodeck produce "A stranded crew..." --no-sfx
 
 # With a specific production mode
 holodeck produce "A stranded crew..." --mode supervised --bible <bible-id>
@@ -121,7 +245,7 @@ holodeck produce "A stranded crew..." --mode supervised --bible <bible-id>
 holodeck produce "A stranded crew..." --no-approve
 ```
 
-The pipeline runs: **Showrunner** → **Head Writer** → **Staff Writer** → **Canon Historian** → **Critic**. Each agent calls the configured LLM model, reviews its own output, and results are tracked in memory.
+The pipeline runs **22 agents** across 5 phases: **Creative** → **Design** → **Audio** → **Render** → **Review**. Each agent calls the configured LLM model, reviews its own output, and results are tracked in memory.
 
 ### Production Status
 
@@ -220,6 +344,21 @@ src/holodeck/
 └── config/              # Pydantic settings
 ```
 
-## MVP Scope (Phase 1)
+## Project Scope
 
-Script generation pipeline only (Concept → Outline → Script → Review → Release). Visual, audio, and animation are future phases.
+**Implemented (128 tasks):**
+- Full 22-agent pipeline from concept to final video
+- Franchise bible management (character/location/tech/lore entries)
+- Voice synthesis with Piper TTS (multi-voice, gender-aware casting) + gTTS fallback
+- SFX mixing with 130+ TrekCore sound effects (ambience + Foley + one-shot SFX)
+- Video assembly with FFmpeg (smooth zoom, color grading, camera moves, subtitles)
+- Preview mode for rapid iteration (640×360, 12fps, 15-frame cap)
+- AI image generation via Replicate (Flux-2-Pro) with SVG fallback
+- Kubernetes deployment (Colima + PostgreSQL + MinIO + Langfuse)
+- 327 unit tests, full observability tracing
+
+**Future phases:**
+- Background music integration (needs free source)
+- Voice cloning with ElevenLabs (requires user audio samples)
+- Real-time lip-sync from audio waveform
+- Multi-episode series continuity

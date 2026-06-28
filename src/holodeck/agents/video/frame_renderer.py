@@ -1,11 +1,17 @@
 from __future__ import annotations
 
+import logging
 import re
 from typing import TYPE_CHECKING
 
 from agno.agent import Agent
 
 from holodeck.agents.base import AgentOutput, ReviewResult, StageType, ValidationResult
+from holodeck.agents.video.image_provider import (
+    AiBudgetTracker,
+    ReplicateProvider,
+    StabilityProvider,
+)
 from holodeck.agents.video.svg_templates import (
     character_silhouette,
     compose_scene,
@@ -17,6 +23,11 @@ from holodeck.observability import observe
 
 if TYPE_CHECKING:
     from agno.models.base import Model
+    from PIL import Image
+
+    from holodeck.agents.video.ai_compositor import AICompositor
+
+logger = logging.getLogger(__name__)
 
 
 def _parse_scenes(animation_text: str) -> list[dict]:
@@ -136,6 +147,42 @@ class FrameRendererAgent:
             return ValidationResult(valid=False, errors=["Animation or storyboard required"])
         return ValidationResult(valid=True)
 
+    def _setup_ai_compositor(self, context: dict) -> AICompositor | None:
+        provider_str = context.get("image_provider", "svgonly")
+        if provider_str == "svgonly":
+            return None
+
+        from holodeck.agents.video.ai_compositor import AICompositor
+        from holodeck.agents.video.image_provider import ImageProvider, SvgFallbackProvider
+        from holodeck.config.settings import Settings
+
+        settings = Settings()
+        budget = AiBudgetTracker(
+            getattr(settings, "ai_budget_limit", 25), context
+        )
+
+        provider: ImageProvider
+        if provider_str == "replicate":
+            api_key = getattr(settings, "replicate_api_key", "")
+            if not api_key:
+                logger.warning("REPLICATE_API_KEY not set, using SVG fallback")
+                return None
+            provider = ReplicateProvider(
+                api_key=api_key,
+                model=getattr(settings, "replicate_model", "black-forest-labs/flux-2-pro"),
+                budget_tracker=budget,
+            )
+        elif provider_str == "stability":
+            api_key = getattr(settings, "replicate_api_key", "")
+            if not api_key:
+                logger.warning("Stability API key not set, using SVG fallback")
+                return None
+            provider = StabilityProvider(api_key=api_key, budget_tracker=budget)
+        else:
+            provider = SvgFallbackProvider()
+
+        return AICompositor(provider=provider, settings=settings, context=context)
+
     @observe(name="frame_renderer.process", as_type="generation")
     def process(self, context: dict) -> AgentOutput:
         script = context.get("script", "")
@@ -152,7 +199,41 @@ class FrameRendererAgent:
         if not dialogue_lines:
             dialogue_lines = [("Narrator", script[:100])]
 
+        compositor = self._setup_ai_compositor(context)
+        ai_bg_cache: dict[str, Image.Image] = {}
+        ai_char_cache: dict[str, dict[str, Image.Image]] = {}
+        ai_char_count = 0
+        ai_bg_count = 0
+        svg_fallback_count = 0
+
+        if compositor is not None:
+            for scene in scenes:
+                sid = scene["number"]
+                loc = scene.get("location", "unknown")
+                mood = context.get("scene_moods", {}).get(sid, "neutral")
+                bg_img = compositor.generate_background(sid, loc, mood=mood)
+                if bg_img is not None:
+                    ai_bg_cache[sid] = bg_img
+                    ai_bg_count += 1
+                else:
+                    svg_fallback_count += 1
+
+            for char_name in char_names:
+                desc = character_visuals.get(char_name, {}).get("description", char_name)
+                prod_id = str(context.get("production_id", ""))
+                for scene in scenes:
+                    sid = scene["number"]
+                    char_img = compositor.generate_character(
+                        char_name, sid, desc, production_id=prod_id,
+                    )
+                    if char_img is not None:
+                        ai_char_cache.setdefault(sid, {})[char_name] = char_img
+                        ai_char_count += 1
+                    else:
+                        svg_fallback_count += 1
+
         svg_scenes = []
+        ai_frame_paths: list[str] = []
         subtitle_data = []
         sub_frames_n = int(context.get("sub_frames", 6))
         sub_frame_offsets = {
@@ -178,11 +259,11 @@ class FrameRendererAgent:
             if speaker_idx < 0:
                 speaker_idx = i % max(len(char_names), 1)
 
-            bg = scene_background(location, depth=context.get("background_depth", 1))
+            svg_bg = scene_background(location, depth=context.get("background_depth", 1))
             pose = _suggest_pose(lines)
             active_char = char_names[speaker_idx] if speaker_idx < len(char_names) else "Speaker"
+            scene_id = scene.get("number", "1")
 
-            # Visual params from character_visuals
             def _get_visual(char_name: str) -> dict:
                 return character_visuals.get(char_name, {})
 
@@ -203,7 +284,6 @@ class FrameRendererAgent:
                 dx, dy, dh = sub_frame_offsets.get(sub_idx, (0, 0, 0))
                 h_local = 130 + dh
 
-                # Lip sync: toggle mouth every 4-6 frames within this dialogue line
                 mouth_open = False
                 if sub_frames_n >= 4:
                     toggle_cycle = max(min(sub_frames_n // 2, 6), 4)
@@ -211,38 +291,59 @@ class FrameRendererAgent:
                     if mouth_open:
                         lip_sync_enabled = True
 
-                char_svgs = []
-                for j, name in enumerate(char_names[:2]):
-                    v = _get_visual(name)
-                    if j == speaker_idx:
-                        char_svgs.append(character_silhouette(
-                            name, x=640 + dx, y=360 + dy, height=h_local, pose=pose,
-                            mouth_open=mouth_open,
-                            clothing=v.get("clothing", "uniform"),
-                            build=v.get("build", "average"),
-                            hair_style=v.get("hair_style", "short"),
-                            accessory=v.get("accessory", "none"),
-                        ))
+                ai_frame = None
+                if compositor is not None and scene_id in ai_bg_cache:
+                    bg_img = ai_bg_cache.get(scene_id)
+                    char_imgs = ai_char_cache.get(scene_id, {})
+                    chars_for_frame: list[tuple[Image.Image | None, int, int, float]] = []
+                    for j, name in enumerate(char_names[:2]):
+                        img = char_imgs.get(name)
+                        if j == speaker_idx:
+                            chars_for_frame.append((img, 320 + dx, 0, 1.0))
+                        else:
+                            side = 200 if speaker_idx == 0 else 1080
+                            chars_for_frame.append((img, side, 120, 0.7))
+                    result_path = compositor.compose_frame(bg_img, chars_for_frame)
+                    if result_path is not None:
+                        ai_frame = result_path
+                        ai_frame_paths.append(result_path)
                     else:
-                        # Listener at side, smaller
-                        side_x = 200 if speaker_idx == 0 else 1080
-                        char_svgs.append(character_silhouette(
-                            name, x=side_x, y=420, height=90, pose=pose,
-                            mouth_open=False,
-                            clothing=v.get("clothing", "uniform"),
-                            build=v.get("build", "average"),
-                            hair_style=v.get("hair_style", "short"),
-                            accessory=v.get("accessory", "none"),
-                        ))
-                svg = compose_scene(bg, char_svgs, props, overlays)
-                svg_scenes.append(svg)
+                        svg_fallback_count += 1
+
+                if ai_frame is not None:
+                    svg_scenes.append(f"AI_FRAME: {ai_frame}")
+                else:
+                    char_svgs = []
+                    for j, name in enumerate(char_names[:2]):
+                        v = _get_visual(name)
+                        if j == speaker_idx:
+                            char_svgs.append(character_silhouette(
+                                name, x=640 + dx, y=360 + dy, height=h_local, pose=pose,
+                                mouth_open=mouth_open,
+                                clothing=v.get("clothing", "uniform"),
+                                build=v.get("build", "average"),
+                                hair_style=v.get("hair_style", "short"),
+                                accessory=v.get("accessory", "none"),
+                            ))
+                        else:
+                            side_x = 200 if speaker_idx == 0 else 1080
+                            char_svgs.append(character_silhouette(
+                                name, x=side_x, y=420, height=90, pose=pose,
+                                mouth_open=False,
+                                clothing=v.get("clothing", "uniform"),
+                                build=v.get("build", "average"),
+                                hair_style=v.get("hair_style", "short"),
+                                accessory=v.get("accessory", "none"),
+                            ))
+                    svg = compose_scene(svg_bg, char_svgs, props, overlays)
+                    svg_scenes.append(svg)
 
             subtitle_data.append({
                 "frame_index": i * n_local,
                 "frame_count": n_local,
                 "dialogue_text": dialogue_text,
                 "character": active_char,
-                "scene": scene.get("number", "1"),
+                "scene": scene_id,
                 "location": location,
             })
 
@@ -252,6 +353,10 @@ class FrameRendererAgent:
             "character": sd["character"],
             "frame_index": sd["frame_index"],
         } for sd in subtitle_data]
+        context["svg_fallback_count"] = context.get("svg_fallback_count", 0) + svg_fallback_count
+        if ai_frame_paths:
+            context["ai_composited_frames"] = dict(enumerate(ai_frame_paths))
+
         animation_subframes = int(context.get("sub_frames", 3))
         output = f"FRAMES: {len(svg_scenes)}\n\n" + "\n---NEXT FRAME---\n".join(svg_scenes)
         return AgentOutput(content=output, metadata={
@@ -262,6 +367,10 @@ class FrameRendererAgent:
             "characters_per_frame": min(len(char_names), 2),
             "lip_sync_enabled": lip_sync_enabled,
             "background_depth": context.get("background_depth", 1),
+            "ai_characters": ai_char_count,
+            "ai_backgrounds": ai_bg_count,
+            "svg_fallback_count": svg_fallback_count,
+            "image_provider": context.get("image_provider", "svgonly"),
         })
 
     @observe(name="frame_renderer.review", as_type="generation")

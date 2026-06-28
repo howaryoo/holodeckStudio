@@ -62,6 +62,9 @@ def produce(
     budget: float | None = typer.Option(None, "--budget", help="Maximum budget in USD for this production"),
     dry_run: bool = typer.Option(False, "--dry-run", help="Validate prompt without executing"),
     open_video: bool = typer.Option(False, "--open", help="Open the final video after generation"),
+    preview: bool = typer.Option(False, "--preview", help="Fast preview mode (640x360, 12fps, 15-frame cap)"),
+    no_voice: bool = typer.Option(False, "--no-voice", help="Skip voice synthesis (produces silent video)"),
+    no_sfx: bool = typer.Option(False, "--no-sfx", help="Skip SFX mixing (dialogue-only audio)"),
 ) -> None:
     valid, error = _validate_prompt(prompt)
     if not valid:
@@ -140,6 +143,9 @@ def produce(
             output=output,
             use_cache=not no_cache,
             budget=budget,
+            preview=preview,
+            no_voice=no_voice,
+            no_sfx=no_sfx,
         ))
         import os as _os
         console.print(f"\n[green]Production {result.production_id} complete![/green]")

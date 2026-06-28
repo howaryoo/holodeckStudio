@@ -1,0 +1,1550 @@
+[
+  {
+    "path": "aliensounds/borg_adapt.mp3",
+    "category": "aliensounds",
+    "filename": "borg_adapt",
+    "tags": [
+      "aliensounds",
+      "borg",
+      "adapt"
+    ],
+    "duration": 1.13,
+    "is_loopable": false
+  },
+  {
+    "path": "aliensounds/borg_adapt2.mp3",
+    "category": "aliensounds",
+    "filename": "borg_adapt2",
+    "tags": [
+      "aliensounds",
+      "borg",
+      "adapt2"
+    ],
+    "duration": 1.2,
+    "is_loopable": false
+  },
+  {
+    "path": "aliensounds/borg_adapt3.mp3",
+    "category": "aliensounds",
+    "filename": "borg_adapt3",
+    "tags": [
+      "aliensounds",
+      "borg",
+      "adapt3"
+    ],
+    "duration": 1.25,
+    "is_loopable": false
+  },
+  {
+    "path": "aliensounds/borg_adapt4.mp3",
+    "category": "aliensounds",
+    "filename": "borg_adapt4",
+    "tags": [
+      "aliensounds",
+      "borg",
+      "adapt4"
+    ],
+    "duration": 1.06,
+    "is_loopable": false
+  },
+  {
+    "path": "aliensounds/borg_alcove_regen_cycle.mp3",
+    "category": "aliensounds",
+    "filename": "borg_alcove_regen_cycle",
+    "tags": [
+      "aliensounds",
+      "borg",
+      "alcove",
+      "regen",
+      "cycle"
+    ],
+    "duration": 7.01,
+    "is_loopable": false
+  },
+  {
+    "path": "aliensounds/borg_alcove_regen_cycle_abort.mp3",
+    "category": "aliensounds",
+    "filename": "borg_alcove_regen_cycle_abort",
+    "tags": [
+      "aliensounds",
+      "borg",
+      "alcove",
+      "regen",
+      "cycle",
+      "abort"
+    ],
+    "duration": 1.61,
+    "is_loopable": false
+  },
+  {
+    "path": "aliensounds/borg_beam_clean.mp3",
+    "category": "aliensounds",
+    "filename": "borg_beam_clean",
+    "tags": [
+      "aliensounds",
+      "borg",
+      "beam",
+      "clean"
+    ],
+    "duration": 1.78,
+    "is_loopable": false
+  },
+  {
+    "path": "aliensounds/borg_computer_beep.mp3",
+    "category": "aliensounds",
+    "filename": "borg_computer_beep",
+    "tags": [
+      "aliensounds",
+      "borg",
+      "computer",
+      "beep"
+    ],
+    "duration": 1.38,
+    "is_loopable": false
+  },
+  {
+    "path": "aliensounds/borg_cut_2.mp3",
+    "category": "aliensounds",
+    "filename": "borg_cut_2",
+    "tags": [
+      "aliensounds",
+      "borg",
+      "cut"
+    ],
+    "duration": 2.95,
+    "is_loopable": false
+  },
+  {
+    "path": "aliensounds/borg_cut_3.mp3",
+    "category": "aliensounds",
+    "filename": "borg_cut_3",
+    "tags": [
+      "aliensounds",
+      "borg",
+      "cut"
+    ],
+    "duration": 3.47,
+    "is_loopable": false
+  },
+  {
+    "path": "aliensounds/borg_cut_clean.mp3",
+    "category": "aliensounds",
+    "filename": "borg_cut_clean",
+    "tags": [
+      "aliensounds",
+      "borg",
+      "cut",
+      "clean"
+    ],
+    "duration": 1.78,
+    "is_loopable": false
+  },
+  {
+    "path": "aliensounds/borg_engine_hum.mp3",
+    "category": "aliensounds",
+    "filename": "borg_engine_hum",
+    "tags": [
+      "aliensounds",
+      "borg",
+      "engine",
+      "hum"
+    ],
+    "duration": 7.08,
+    "is_loopable": true
+  },
+  {
+    "path": "aliensounds/borg_flyby.mp3",
+    "category": "aliensounds",
+    "filename": "borg_flyby",
+    "tags": [
+      "aliensounds",
+      "borg",
+      "flyby"
+    ],
+    "duration": 5.88,
+    "is_loopable": false
+  },
+  {
+    "path": "aliensounds/borg_phaser_clean.mp3",
+    "category": "aliensounds",
+    "filename": "borg_phaser_clean",
+    "tags": [
+      "aliensounds",
+      "borg",
+      "phaser",
+      "clean"
+    ],
+    "duration": 0.98,
+    "is_loopable": false
+  },
+  {
+    "path": "aliensounds/borg_sound_1.mp3",
+    "category": "aliensounds",
+    "filename": "borg_sound_1",
+    "tags": [
+      "aliensounds",
+      "borg",
+      "sound"
+    ],
+    "duration": 2.43,
+    "is_loopable": false
+  },
+  {
+    "path": "aliensounds/borg_sound_2.mp3",
+    "category": "aliensounds",
+    "filename": "borg_sound_2",
+    "tags": [
+      "aliensounds",
+      "borg",
+      "sound"
+    ],
+    "duration": 3.19,
+    "is_loopable": false
+  },
+  {
+    "path": "aliensounds/borg_sound_3.mp3",
+    "category": "aliensounds",
+    "filename": "borg_sound_3",
+    "tags": [
+      "aliensounds",
+      "borg",
+      "sound"
+    ],
+    "duration": 4.88,
+    "is_loopable": false
+  },
+  {
+    "path": "aliensounds/borg_sound_4.mp3",
+    "category": "aliensounds",
+    "filename": "borg_sound_4",
+    "tags": [
+      "aliensounds",
+      "borg",
+      "sound"
+    ],
+    "duration": 3.29,
+    "is_loopable": false
+  },
+  {
+    "path": "aliensounds/borg_stepping.mp3",
+    "category": "aliensounds",
+    "filename": "borg_stepping",
+    "tags": [
+      "aliensounds",
+      "borg",
+      "stepping"
+    ],
+    "duration": 8.96,
+    "is_loopable": false
+  },
+  {
+    "path": "aliensounds/borg_struck_phaser.mp3",
+    "category": "aliensounds",
+    "filename": "borg_struck_phaser",
+    "tags": [
+      "aliensounds",
+      "borg",
+      "struck",
+      "phaser"
+    ],
+    "duration": 2.35,
+    "is_loopable": false
+  },
+  {
+    "path": "aliensounds/borg_tractor_beam.mp3",
+    "category": "aliensounds",
+    "filename": "borg_tractor_beam",
+    "tags": [
+      "aliensounds",
+      "borg",
+      "tractor",
+      "beam"
+    ],
+    "duration": 3.0,
+    "is_loopable": false
+  },
+  {
+    "path": "aliensounds/borg_transporter.mp3",
+    "category": "aliensounds",
+    "filename": "borg_transporter",
+    "tags": [
+      "aliensounds",
+      "borg",
+      "transporter"
+    ],
+    "duration": 2.59,
+    "is_loopable": false
+  },
+  {
+    "path": "aliensounds/borg_transporter_2.mp3",
+    "category": "aliensounds",
+    "filename": "borg_transporter_2",
+    "tags": [
+      "aliensounds",
+      "borg",
+      "transporter"
+    ],
+    "duration": 2.48,
+    "is_loopable": false
+  },
+  {
+    "path": "background/ds9_infirmary.mp3",
+    "category": "background",
+    "filename": "ds9_infirmary",
+    "tags": [
+      "background",
+      "ds9",
+      "infirmary"
+    ],
+    "duration": 192.77,
+    "is_loopable": true
+  },
+  {
+    "path": "background/tng_bridge_1.mp3",
+    "category": "background",
+    "filename": "tng_bridge_1",
+    "tags": [
+      "background",
+      "tng",
+      "bridge"
+    ],
+    "duration": 227.69,
+    "is_loopable": true
+  },
+  {
+    "path": "background/tng_bridge_2.mp3",
+    "category": "background",
+    "filename": "tng_bridge_2",
+    "tags": [
+      "background",
+      "tng",
+      "bridge"
+    ],
+    "duration": 186.72,
+    "is_loopable": true
+  },
+  {
+    "path": "background/tng_bridge_3.mp3",
+    "category": "background",
+    "filename": "tng_bridge_3",
+    "tags": [
+      "background",
+      "tng",
+      "bridge"
+    ],
+    "duration": 6.95,
+    "is_loopable": true
+  },
+  {
+    "path": "background/tng_brig.mp3",
+    "category": "background",
+    "filename": "tng_brig",
+    "tags": [
+      "background",
+      "tng",
+      "brig"
+    ],
+    "duration": 168.38,
+    "is_loopable": true
+  },
+  {
+    "path": "background/tng_cargobay.mp3",
+    "category": "background",
+    "filename": "tng_cargobay",
+    "tags": [
+      "background",
+      "tng",
+      "cargobay"
+    ],
+    "duration": 180.53,
+    "is_loopable": true
+  },
+  {
+    "path": "background/tng_data_room.mp3",
+    "category": "background",
+    "filename": "tng_data_room",
+    "tags": [
+      "background",
+      "tng",
+      "data",
+      "room"
+    ],
+    "duration": 180.34,
+    "is_loopable": true
+  },
+  {
+    "path": "background/tng_engine_1.mp3",
+    "category": "background",
+    "filename": "tng_engine_1",
+    "tags": [
+      "background",
+      "tng",
+      "engine"
+    ],
+    "duration": 17.06,
+    "is_loopable": true
+  },
+  {
+    "path": "background/tng_engine_2.mp3",
+    "category": "background",
+    "filename": "tng_engine_2",
+    "tags": [
+      "background",
+      "tng",
+      "engine"
+    ],
+    "duration": 1.94,
+    "is_loopable": true
+  },
+  {
+    "path": "background/tng_engine_3.mp3",
+    "category": "background",
+    "filename": "tng_engine_3",
+    "tags": [
+      "background",
+      "tng",
+      "engine"
+    ],
+    "duration": 4.52,
+    "is_loopable": true
+  },
+  {
+    "path": "background/tng_engineering_hum.mp3",
+    "category": "background",
+    "filename": "tng_engineering_hum",
+    "tags": [
+      "background",
+      "tng",
+      "engineering",
+      "hum"
+    ],
+    "duration": 182.06,
+    "is_loopable": true
+  },
+  {
+    "path": "background/tng_hum_clean.mp3",
+    "category": "background",
+    "filename": "tng_hum_clean",
+    "tags": [
+      "background",
+      "tng",
+      "hum",
+      "clean"
+    ],
+    "duration": 3.58,
+    "is_loopable": true
+  },
+  {
+    "path": "background/tng_jeffreystube.mp3",
+    "category": "background",
+    "filename": "tng_jeffreystube",
+    "tags": [
+      "background",
+      "tng",
+      "jeffreystube"
+    ],
+    "duration": 183.7,
+    "is_loopable": true
+  },
+  {
+    "path": "background/tng_lab.mp3",
+    "category": "background",
+    "filename": "tng_lab",
+    "tags": [
+      "background",
+      "tng",
+      "lab"
+    ],
+    "duration": 120.89,
+    "is_loopable": true
+  },
+  {
+    "path": "background/tng_sickbay.mp3",
+    "category": "background",
+    "filename": "tng_sickbay",
+    "tags": [
+      "background",
+      "tng",
+      "sickbay"
+    ],
+    "duration": 182.9,
+    "is_loopable": true
+  },
+  {
+    "path": "background/tng_sickbay_2.mp3",
+    "category": "background",
+    "filename": "tng_sickbay_2",
+    "tags": [
+      "background",
+      "tng",
+      "sickbay"
+    ],
+    "duration": 131.78,
+    "is_loopable": true
+  },
+  {
+    "path": "background/voy_astrometrics.mp3",
+    "category": "background",
+    "filename": "voy_astrometrics",
+    "tags": [
+      "background",
+      "voy",
+      "astrometrics"
+    ],
+    "duration": 69.43,
+    "is_loopable": true
+  },
+  {
+    "path": "background/voy_bridge.mp3",
+    "category": "background",
+    "filename": "voy_bridge",
+    "tags": [
+      "background",
+      "voy",
+      "bridge"
+    ],
+    "duration": 439.43,
+    "is_loopable": true
+  },
+  {
+    "path": "background/voy_core_1.mp3",
+    "category": "background",
+    "filename": "voy_core_1",
+    "tags": [
+      "background",
+      "voy",
+      "core"
+    ],
+    "duration": 27.72,
+    "is_loopable": true
+  },
+  {
+    "path": "background/voy_core_2.mp3",
+    "category": "background",
+    "filename": "voy_core_2",
+    "tags": [
+      "background",
+      "voy",
+      "core"
+    ],
+    "duration": 5.33,
+    "is_loopable": true
+  },
+  {
+    "path": "background/voy_core_3.mp3",
+    "category": "background",
+    "filename": "voy_core_3",
+    "tags": [
+      "background",
+      "voy",
+      "core"
+    ],
+    "duration": 7.73,
+    "is_loopable": true
+  },
+  {
+    "path": "background/voy_core_4.mp3",
+    "category": "background",
+    "filename": "voy_core_4",
+    "tags": [
+      "background",
+      "voy",
+      "core"
+    ],
+    "duration": 6.46,
+    "is_loopable": true
+  },
+  {
+    "path": "background/voy_engineering.mp3",
+    "category": "background",
+    "filename": "voy_engineering",
+    "tags": [
+      "background",
+      "voy",
+      "engineering"
+    ],
+    "duration": 72.0,
+    "is_loopable": true
+  },
+  {
+    "path": "background/voy_relativity_bridge.mp3",
+    "category": "background",
+    "filename": "voy_relativity_bridge",
+    "tags": [
+      "background",
+      "voy",
+      "relativity",
+      "bridge"
+    ],
+    "duration": 147.19,
+    "is_loopable": true
+  },
+  {
+    "path": "communicator/tng_chirp2_clean.mp3",
+    "category": "communicator",
+    "filename": "tng_chirp2_clean",
+    "tags": [
+      "communicator",
+      "tng",
+      "chirp2",
+      "clean"
+    ],
+    "duration": 0.6,
+    "is_loopable": false
+  },
+  {
+    "path": "communicator/tng_chirp3_clean.mp3",
+    "category": "communicator",
+    "filename": "tng_chirp3_clean",
+    "tags": [
+      "communicator",
+      "tng",
+      "chirp3",
+      "clean"
+    ],
+    "duration": 0.44,
+    "is_loopable": false
+  },
+  {
+    "path": "communicator/tng_chirp_clean.mp3",
+    "category": "communicator",
+    "filename": "tng_chirp_clean",
+    "tags": [
+      "communicator",
+      "tng",
+      "chirp",
+      "clean"
+    ],
+    "duration": 0.46,
+    "is_loopable": false
+  },
+  {
+    "path": "computer/alarm01.mp3",
+    "category": "computer",
+    "filename": "alarm01",
+    "tags": [
+      "computer",
+      "alarm01"
+    ],
+    "duration": 0.72,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/alarm02.mp3",
+    "category": "computer",
+    "filename": "alarm02",
+    "tags": [
+      "computer",
+      "alarm02"
+    ],
+    "duration": 0.67,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/alarm03.mp3",
+    "category": "computer",
+    "filename": "alarm03",
+    "tags": [
+      "computer",
+      "alarm03"
+    ],
+    "duration": 0.53,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/alert01.mp3",
+    "category": "computer",
+    "filename": "alert01",
+    "tags": [
+      "computer",
+      "alert01"
+    ],
+    "duration": 2.06,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/alert02.mp3",
+    "category": "computer",
+    "filename": "alert02",
+    "tags": [
+      "computer",
+      "alert02"
+    ],
+    "duration": 0.62,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/alert03.mp3",
+    "category": "computer",
+    "filename": "alert03",
+    "tags": [
+      "computer",
+      "alert03"
+    ],
+    "duration": 0.74,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/alert04.mp3",
+    "category": "computer",
+    "filename": "alert04",
+    "tags": [
+      "computer",
+      "alert04"
+    ],
+    "duration": 1.54,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/alert05.mp3",
+    "category": "computer",
+    "filename": "alert05",
+    "tags": [
+      "computer",
+      "alert05"
+    ],
+    "duration": 1.01,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/alert06.mp3",
+    "category": "computer",
+    "filename": "alert06",
+    "tags": [
+      "computer",
+      "alert06"
+    ],
+    "duration": 1.46,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/computer_error.mp3",
+    "category": "computer",
+    "filename": "computer_error",
+    "tags": [
+      "computer",
+      "computer",
+      "error"
+    ],
+    "duration": 0.95,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/computerbeep_1.mp3",
+    "category": "computer",
+    "filename": "computerbeep_1",
+    "tags": [
+      "computer",
+      "computerbeep"
+    ],
+    "duration": 0.53,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/computerbeep_10.mp3",
+    "category": "computer",
+    "filename": "computerbeep_10",
+    "tags": [
+      "computer",
+      "computerbeep"
+    ],
+    "duration": 0.31,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/computerbeep_2.mp3",
+    "category": "computer",
+    "filename": "computerbeep_2",
+    "tags": [
+      "computer",
+      "computerbeep"
+    ],
+    "duration": 1.39,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/computerbeep_3.mp3",
+    "category": "computer",
+    "filename": "computerbeep_3",
+    "tags": [
+      "computer",
+      "computerbeep"
+    ],
+    "duration": 0.48,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/computerbeep_4.mp3",
+    "category": "computer",
+    "filename": "computerbeep_4",
+    "tags": [
+      "computer",
+      "computerbeep"
+    ],
+    "duration": 0.24,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/computerbeep_5.mp3",
+    "category": "computer",
+    "filename": "computerbeep_5",
+    "tags": [
+      "computer",
+      "computerbeep"
+    ],
+    "duration": 0.07,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/computerbeep_6.mp3",
+    "category": "computer",
+    "filename": "computerbeep_6",
+    "tags": [
+      "computer",
+      "computerbeep"
+    ],
+    "duration": 0.58,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/computerbeep_7.mp3",
+    "category": "computer",
+    "filename": "computerbeep_7",
+    "tags": [
+      "computer",
+      "computerbeep"
+    ],
+    "duration": 1.61,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/computerbeep_8.mp3",
+    "category": "computer",
+    "filename": "computerbeep_8",
+    "tags": [
+      "computer",
+      "computerbeep"
+    ],
+    "duration": 0.58,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/computerbeep_9.mp3",
+    "category": "computer",
+    "filename": "computerbeep_9",
+    "tags": [
+      "computer",
+      "computerbeep"
+    ],
+    "duration": 0.14,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/consolewarning.mp3",
+    "category": "computer",
+    "filename": "consolewarning",
+    "tags": [
+      "computer",
+      "consolewarning"
+    ],
+    "duration": 0.6,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/critical.mp3",
+    "category": "computer",
+    "filename": "critical",
+    "tags": [
+      "computer",
+      "critical"
+    ],
+    "duration": 3.65,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/damagealarm.mp3",
+    "category": "computer",
+    "filename": "damagealarm",
+    "tags": [
+      "computer",
+      "damagealarm"
+    ],
+    "duration": 1.25,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/energize.mp3",
+    "category": "computer",
+    "filename": "energize",
+    "tags": [
+      "computer",
+      "energize"
+    ],
+    "duration": 1.51,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/engage.mp3",
+    "category": "computer",
+    "filename": "engage",
+    "tags": [
+      "computer",
+      "engage"
+    ],
+    "duration": 0.98,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/hailalert_1.mp3",
+    "category": "computer",
+    "filename": "hailalert_1",
+    "tags": [
+      "computer",
+      "hailalert"
+    ],
+    "duration": 1.13,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/hailalert_2.mp3",
+    "category": "computer",
+    "filename": "hailalert_2",
+    "tags": [
+      "computer",
+      "hailalert"
+    ],
+    "duration": 1.01,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/hailingfrequencies_open1.mp3",
+    "category": "computer",
+    "filename": "hailingfrequencies_open1",
+    "tags": [
+      "computer",
+      "hailingfrequencies",
+      "open1"
+    ],
+    "duration": 1.18,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/hailingfrequencies_open2.mp3",
+    "category": "computer",
+    "filename": "hailingfrequencies_open2",
+    "tags": [
+      "computer",
+      "hailingfrequencies",
+      "open2"
+    ],
+    "duration": 1.68,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/hailingfrequencies_open3.mp3",
+    "category": "computer",
+    "filename": "hailingfrequencies_open3",
+    "tags": [
+      "computer",
+      "hailingfrequencies",
+      "open3"
+    ],
+    "duration": 1.2,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/hailingfrequencies_open4.mp3",
+    "category": "computer",
+    "filename": "hailingfrequencies_open4",
+    "tags": [
+      "computer",
+      "hailingfrequencies",
+      "open4"
+    ],
+    "duration": 1.75,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/keyok1.mp3",
+    "category": "computer",
+    "filename": "keyok1",
+    "tags": [
+      "computer",
+      "keyok1"
+    ],
+    "duration": 0.1,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/keyok2.mp3",
+    "category": "computer",
+    "filename": "keyok2",
+    "tags": [
+      "computer",
+      "keyok2"
+    ],
+    "duration": 0.14,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/keyok3.mp3",
+    "category": "computer",
+    "filename": "keyok3",
+    "tags": [
+      "computer",
+      "keyok3"
+    ],
+    "duration": 0.14,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/keyok4.mp3",
+    "category": "computer",
+    "filename": "keyok4",
+    "tags": [
+      "computer",
+      "keyok4"
+    ],
+    "duration": 0.14,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/keyok5.mp3",
+    "category": "computer",
+    "filename": "keyok5",
+    "tags": [
+      "computer",
+      "keyok5"
+    ],
+    "duration": 0.14,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/keyok6.mp3",
+    "category": "computer",
+    "filename": "keyok6",
+    "tags": [
+      "computer",
+      "keyok6"
+    ],
+    "duration": 0.72,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/padd/padd_1.mp3",
+    "category": "padd",
+    "filename": "padd_1",
+    "tags": [
+      "padd",
+      "padd"
+    ],
+    "duration": 0.89,
+    "is_loopable": false
+  },
+  {
+    "path": "computer/padd/padd_2.mp3",
+    "category": "padd",
+    "filename": "padd_2",
+    "tags": [
+      "padd",
+      "padd"
+    ],
+    "duration": 0.86,
+    "is_loopable": false
+  },
+  {
+    "path": "computer/padd/padd_3.mp3",
+    "category": "padd",
+    "filename": "padd_3",
+    "tags": [
+      "padd",
+      "padd"
+    ],
+    "duration": 0.24,
+    "is_loopable": false
+  },
+  {
+    "path": "computer/processing.mp3",
+    "category": "computer",
+    "filename": "processing",
+    "tags": [
+      "computer",
+      "processing"
+    ],
+    "duration": 1.51,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/sequences/ambient_bridge_1.mp3",
+    "category": "sequences",
+    "filename": "ambient_bridge_1",
+    "tags": [
+      "sequences",
+      "ambient",
+      "bridge"
+    ],
+    "duration": 0.86,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/sequences/ambient_bridge_2.mp3",
+    "category": "sequences",
+    "filename": "ambient_bridge_2",
+    "tags": [
+      "sequences",
+      "ambient",
+      "bridge"
+    ],
+    "duration": 0.84,
+    "is_loopable": false
+  },
+  {
+    "path": "computer/sequences/astrometrics_controls.mp3",
+    "category": "sequences",
+    "filename": "astrometrics_controls",
+    "tags": [
+      "sequences",
+      "astrometrics",
+      "controls"
+    ],
+    "duration": 2.81,
+    "is_loopable": false
+  },
+  {
+    "path": "computer/sequences/computer_sounds.mp3",
+    "category": "sequences",
+    "filename": "computer_sounds",
+    "tags": [
+      "sequences",
+      "computer",
+      "sounds"
+    ],
+    "duration": 3.67,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/sequences/computerbeepsequence1.mp3",
+    "category": "sequences",
+    "filename": "computerbeepsequence1",
+    "tags": [
+      "sequences",
+      "computerbeepsequence1"
+    ],
+    "duration": 3.45,
+    "is_loopable": false
+  },
+  {
+    "path": "computer/sequences/engineering_clean.mp3",
+    "category": "sequences",
+    "filename": "engineering_clean",
+    "tags": [
+      "sequences",
+      "engineering",
+      "clean"
+    ],
+    "duration": 6.91,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/sequences/helm_beep_sequence.mp3",
+    "category": "sequences",
+    "filename": "helm_beep_sequence",
+    "tags": [
+      "sequences",
+      "helm",
+      "beep",
+      "sequence"
+    ],
+    "duration": 10.42,
+    "is_loopable": false
+  },
+  {
+    "path": "computer/sequences/ops_beep_sequence.mp3",
+    "category": "sequences",
+    "filename": "ops_beep_sequence",
+    "tags": [
+      "sequences",
+      "ops",
+      "beep",
+      "sequence"
+    ],
+    "duration": 12.07,
+    "is_loopable": false
+  },
+  {
+    "path": "computer/sequences/sensor.mp3",
+    "category": "sequences",
+    "filename": "sensor",
+    "tags": [
+      "sequences",
+      "sensor"
+    ],
+    "duration": 1.25,
+    "is_loopable": false
+  },
+  {
+    "path": "computer/sequences/tactical_beep_sequence.mp3",
+    "category": "sequences",
+    "filename": "tactical_beep_sequence",
+    "tags": [
+      "sequences",
+      "tactical",
+      "beep",
+      "sequence"
+    ],
+    "duration": 10.94,
+    "is_loopable": false
+  },
+  {
+    "path": "computer/transporter_beep.mp3",
+    "category": "computer",
+    "filename": "transporter_beep",
+    "tags": [
+      "computer",
+      "transporter",
+      "beep"
+    ],
+    "duration": 1.51,
+    "is_loopable": true
+  },
+  {
+    "path": "computer/voice/autodestructsequencearmed_ep.mp3",
+    "category": "voice",
+    "filename": "autodestructsequencearmed_ep",
+    "tags": [
+      "voice",
+      "autodestructsequencearmed",
+      "ep"
+    ],
+    "duration": 2.81,
+    "is_loopable": false
+  },
+  {
+    "path": "computer/voice/autoinitationemh.mp3",
+    "category": "voice",
+    "filename": "autoinitationemh",
+    "tags": [
+      "voice",
+      "autoinitationemh"
+    ],
+    "duration": 4.73,
+    "is_loopable": false
+  },
+  {
+    "path": "computer/voice/diagnosticcomplete_ep.mp3",
+    "category": "voice",
+    "filename": "diagnosticcomplete_ep",
+    "tags": [
+      "voice",
+      "diagnosticcomplete",
+      "ep"
+    ],
+    "duration": 4.1,
+    "is_loopable": false
+  },
+  {
+    "path": "computer/voice/evacuatebridge_ep.mp3",
+    "category": "voice",
+    "filename": "evacuatebridge_ep",
+    "tags": [
+      "voice",
+      "evacuatebridge",
+      "ep"
+    ],
+    "duration": 6.1,
+    "is_loopable": false
+  },
+  {
+    "path": "computer/voice/incomingtransmission_clean.mp3",
+    "category": "voice",
+    "filename": "incomingtransmission_clean",
+    "tags": [
+      "voice",
+      "incomingtransmission",
+      "clean"
+    ],
+    "duration": 2.21,
+    "is_loopable": false
+  },
+  {
+    "path": "computer/voice/intruderalertdeck8_ep.mp3",
+    "category": "voice",
+    "filename": "intruderalertdeck8_ep",
+    "tags": [
+      "voice",
+      "intruderalertdeck8",
+      "ep"
+    ],
+    "duration": 1.63,
+    "is_loopable": false
+  },
+  {
+    "path": "computer/voice/priorityonemessagefromstarfleet_ep.mp3",
+    "category": "voice",
+    "filename": "priorityonemessagefromstarfleet_ep",
+    "tags": [
+      "voice",
+      "priorityonemessagefromstarfleet",
+      "ep"
+    ],
+    "duration": 4.62,
+    "is_loopable": false
+  },
+  {
+    "path": "computer/voice/securityauthorisationaccepted_clean.mp3",
+    "category": "voice",
+    "filename": "securityauthorisationaccepted_clean",
+    "tags": [
+      "voice",
+      "securityauthorisationaccepted",
+      "clean"
+    ],
+    "duration": 2.64,
+    "is_loopable": false
+  },
+  {
+    "path": "computer/voice/selfdestructsequenceinitiatedwarpcorebreach_ep.mp3",
+    "category": "voice",
+    "filename": "selfdestructsequenceinitiatedwarpcorebreach_ep",
+    "tags": [
+      "voice",
+      "selfdestructsequenceinitiatedwarpcorebreach",
+      "ep"
+    ],
+    "duration": 9.67,
+    "is_loopable": false
+  },
+  {
+    "path": "computer/voice/unabletocomply.mp3",
+    "category": "voice",
+    "filename": "unabletocomply",
+    "tags": [
+      "voice",
+      "unabletocomply"
+    ],
+    "duration": 1.44,
+    "is_loopable": false
+  },
+  {
+    "path": "computer/voice/warningprimaryshieldsfailing_ep.mp3",
+    "category": "voice",
+    "filename": "warningprimaryshieldsfailing_ep",
+    "tags": [
+      "voice",
+      "warningprimaryshieldsfailing",
+      "ep"
+    ],
+    "duration": 2.54,
+    "is_loopable": false
+  },
+  {
+    "path": "computer/voice/warningwarpcorecollapse_ep.mp3",
+    "category": "voice",
+    "filename": "warningwarpcorecollapse_ep",
+    "tags": [
+      "voice",
+      "warningwarpcorecollapse",
+      "ep"
+    ],
+    "duration": 3.77,
+    "is_loopable": false
+  },
+  {
+    "path": "computer/voy_hail.mp3",
+    "category": "computer",
+    "filename": "voy_hail",
+    "tags": [
+      "computer",
+      "voy",
+      "hail"
+    ],
+    "duration": 0.61,
+    "is_loopable": true
+  },
+  {
+    "path": "doors/tng_cargobay.mp3",
+    "category": "doors",
+    "filename": "tng_cargobay",
+    "tags": [
+      "doors",
+      "tng",
+      "cargobay"
+    ],
+    "duration": 6.14,
+    "is_loopable": true
+  },
+  {
+    "path": "doors/tng_door_close.mp3",
+    "category": "doors",
+    "filename": "tng_door_close",
+    "tags": [
+      "doors",
+      "tng",
+      "door",
+      "close"
+    ],
+    "duration": 2.16,
+    "is_loopable": false
+  },
+  {
+    "path": "doors/tng_door_open.mp3",
+    "category": "doors",
+    "filename": "tng_door_open",
+    "tags": [
+      "doors",
+      "tng",
+      "door",
+      "open"
+    ],
+    "duration": 1.85,
+    "is_loopable": false
+  },
+  {
+    "path": "doors/voy_door_chime_2.mp3",
+    "category": "doors",
+    "filename": "voy_door_chime_2",
+    "tags": [
+      "doors",
+      "voy",
+      "door",
+      "chime"
+    ],
+    "duration": 1.03,
+    "is_loopable": false
+  },
+  {
+    "path": "holodeck/holodeck_end_program.mp3",
+    "category": "holodeck",
+    "filename": "holodeck_end_program",
+    "tags": [
+      "holodeck",
+      "holodeck",
+      "end",
+      "program"
+    ],
+    "duration": 31.27,
+    "is_loopable": false
+  },
+  {
+    "path": "holodeck/hologram_off_2.mp3",
+    "category": "holodeck",
+    "filename": "hologram_off_2",
+    "tags": [
+      "holodeck",
+      "hologram",
+      "off"
+    ],
+    "duration": 1.27,
+    "is_loopable": false
+  },
+  {
+    "path": "holodeck/hologram_on.mp3",
+    "category": "holodeck",
+    "filename": "hologram_on",
+    "tags": [
+      "holodeck",
+      "hologram",
+      "on"
+    ],
+    "duration": 1.15,
+    "is_loopable": false
+  },
+  {
+    "path": "holodeck/hologrid_failing.mp3",
+    "category": "holodeck",
+    "filename": "hologrid_failing",
+    "tags": [
+      "holodeck",
+      "hologrid",
+      "failing"
+    ],
+    "duration": 2.38,
+    "is_loopable": false
+  },
+  {
+    "path": "holodeck/hologrid_online.mp3",
+    "category": "holodeck",
+    "filename": "hologrid_online",
+    "tags": [
+      "holodeck",
+      "hologrid",
+      "online"
+    ],
+    "duration": 1.61,
+    "is_loopable": false
+  },
+  {
+    "path": "replicator/tng_replicator.mp3",
+    "category": "replicator",
+    "filename": "tng_replicator",
+    "tags": [
+      "replicator",
+      "tng",
+      "replicator"
+    ],
+    "duration": 4.87,
+    "is_loopable": false
+  },
+  {
+    "path": "replicator/voy_sickbay_replicator.mp3",
+    "category": "replicator",
+    "filename": "voy_sickbay_replicator",
+    "tags": [
+      "replicator",
+      "voy",
+      "sickbay",
+      "replicator"
+    ],
+    "duration": 2.86,
+    "is_loopable": false
+  },
+  {
+    "path": "turbolift/tng_turbolift_1.mp3",
+    "category": "turbolift",
+    "filename": "tng_turbolift_1",
+    "tags": [
+      "turbolift",
+      "tng",
+      "turbolift"
+    ],
+    "duration": 2.02,
+    "is_loopable": false
+  },
+  {
+    "path": "turbolift/tng_turbolift_2.mp3",
+    "category": "turbolift",
+    "filename": "tng_turbolift_2",
+    "tags": [
+      "turbolift",
+      "tng",
+      "turbolift"
+    ],
+    "duration": 7.68,
+    "is_loopable": false
+  },
+  {
+    "path": "turbolift/voy_turbolift.mp3",
+    "category": "turbolift",
+    "filename": "voy_turbolift",
+    "tags": [
+      "turbolift",
+      "voy",
+      "turbolift"
+    ],
+    "duration": 57.6,
+    "is_loopable": false
+  },
+  {
+    "path": "weapons/tng_phaser_rifle.mp3",
+    "category": "weapons",
+    "filename": "tng_phaser_rifle",
+    "tags": [
+      "weapons",
+      "tng",
+      "phaser",
+      "rifle"
+    ],
+    "duration": 1.33,
+    "is_loopable": false
+  }
+]
